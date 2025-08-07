@@ -39,3 +39,7 @@
 
 # debug information files
 *.dwo
+
+/.cache
+/cmake-build-*/
+compile_commands.json

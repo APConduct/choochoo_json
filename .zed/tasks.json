@@ -1,0 +1,74 @@
+[
+  {
+    "label": "Debug Build & Run",
+    "command": "./debug.sh",
+    "reveal": "always"
+  },
+  {
+    "label": "Configure Debug",
+    "command": "cmake",
+    "args": [
+      "-DCMAKE_BUILD_TYPE=Debug",
+      "-DCMAKE_MAKE_PROGRAM=ninja",
+      "-DCMAKE_C_COMPILER=clang",
+      "-DCMAKE_CXX_COMPILER=clang++",
+      "-G",
+      "Ninja",
+      "-S",
+      ".",
+      "-B",
+      "./cmake-build-debug"
+    ]
+  },
+  {
+    "label": "Build Only",
+    "command": "ninja",
+    "args": ["-C", "./cmake-build-debug"]
+  },
+  {
+    "label": "Run",
+    "command": "./cmake-build-debug/choochoo_json",
+    "reveal": "always"
+  },
+  {
+    "label": "Clean",
+    "command": "rm",
+    "args": [
+      "-rf",
+      "cmake-build-debug",
+      "cmake-build-release",
+      "cmake-build-asan"
+    ]
+  },
+  {
+    "label": "Release Build",
+    "command": "sh",
+    "args": [
+      "-c",
+      "cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -G Ninja -S . -B ./cmake-build-release && ninja -C ./cmake-build-release"
+    ]
+  },
+  {
+    "label": "Run Release",
+    "command": "./cmake-build-release/choochoo_json",
+    "reveal": "always"
+  },
+  {
+    "label": "Address Sanitizer",
+    "command": "sh",
+    "args": [
+      "-c",
+      "cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -DCMAKE_CXX_FLAGS='-fsanitize=address -fno-omit-frame-pointer' -G Ninja -S . -B ./cmake-build-asan && ninja -C ./cmake-build-asan && ./cmake-build-asan/choochoo_json"
+    ],
+    "reveal": "always"
+  },
+  {
+    "label": "Quick Build & Run",
+    "command": "sh",
+    "args": [
+      "-c",
+      "if [ ! -d ./cmake-build-debug ]; then cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -G Ninja -S . -B ./cmake-build-debug; fi && ninja -C ./cmake-build-debug && ./cmake-build-debug/choochoo_json"
+    ],
+    "reveal": "always"
+  }
+]
