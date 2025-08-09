@@ -11,6 +11,7 @@ cmake \
 -DCMAKE_C_COMPILER=clang \
 -DCMAKE_CXX_COMPILER=clang++ \
 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
+-D CMAKE_CXX_FLAGS="-Wall -Wextra -Wshadow -Wpedantic -Wno-variadic-macros" \
 -G Ninja \
 -S . \
 -B ./cmake-build-debug \
