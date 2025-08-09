@@ -274,7 +274,7 @@ int main() {
     choochoo::json::Lexer lexer(json_input);
     auto tokens = lexer.tokenize();
 
-    std::cout << "Input received:" << "\n" << json_input << '\n' << '\n';
+    std::cout << "Input received:" << "\n" << json_input << '\n' << '\n' << "Tokens:" << '\n';
 
     for (const auto token : tokens) {
         std::cout << "Type: " << static_cast<int>(token.type_) << ", Value: '" << token.value << "'"
