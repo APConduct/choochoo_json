@@ -269,13 +269,12 @@ int main() {
     "age": 30,
     "active": true,
     "data": null
-}
-    )";
+})";
 
     choochoo::json::Lexer lexer(json_input);
     auto tokens = lexer.tokenize();
 
-    std::cout << "Input received:" << "\n" << json_input << '\n';
+    std::cout << "Input received:" << "\n" << json_input << '\n' << '\n';
 
     for (const auto token : tokens) {
         std::cout << "Type: " << static_cast<int>(token.type_) << ", Value: '" << token.value << "'"
