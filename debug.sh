@@ -10,10 +10,13 @@ cmake \
 -DCMAKE_MAKE_PROGRAM=ninja \
 -DCMAKE_C_COMPILER=clang \
 -DCMAKE_CXX_COMPILER=clang++ \
+-DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
 -G Ninja \
 -S . \
 -B ./cmake-build-debug \
 && \
 ninja -C ./cmake-build-debug \
+&& \
+ln -sf ./cmake-build-debug/compile_commands.json . \
 && \
 ./cmake-build-debug/"$PROJECT_NAME"
