@@ -1,6 +1,40 @@
 #include "choochoo/parser.hpp"
+#include <sstream>
 
 namespace choochoo::json {
+
+    const char* token_type_name(token::Type type) {
+        switch (type) {
+        case token::Type::STRING:
+            return "STRING";
+        case token::Type::NUMBER:
+            return "NUMBER";
+        case token::Type::TRUE:
+            return "TRUE";
+        case token::Type::FALSE:
+            return "FALSE";
+        case token::Type::NULL_VALUE:
+            return "NULL";
+        case token::Type::LBRACE:
+            return "LBRACE";
+        case token::Type::RBRACE:
+            return "RBRACE";
+        case token::Type::LBRACKET:
+            return "LBRACKET";
+        case token::Type::RBRACKET:
+            return "RBRACKET";
+        case token::Type::COMMA:
+            return "COMMA";
+        case token::Type::COLON:
+            return "COLON";
+        case token::Type::EOF_TOKEN:
+            return "EOF";
+        case token::Type::INVALID:
+            return "INVALID";
+        default:
+            return "UNKNOWN";
+        }
+    }
 
     Token Parser::current_token() { return current_token_; }
 
@@ -88,7 +122,10 @@ namespace choochoo::json {
                 num = process_number(current_token_.value);
             }
             catch (const std::exception&) {
-                return std::unexpected("Invalid number format");
+                std::ostringstream oss;
+                oss << "Invalid number format at line " << current_token_.line << ", column " << current_token_.column
+                    << ". Value: '" << current_token_.value << "'";
+                return std::unexpected(oss.str());
             }
             advance();
             return Value::number(num);
@@ -121,10 +158,10 @@ namespace choochoo::json {
             return arr_result;
         }
         default: {
-            std::string err =
-                "Unexpected token in parse_value: type=" + std::to_string(static_cast<int>(current_token_.type_)) +
-                ", value='" + std::string(current_token_.value) + "'";
-            return std::unexpected(err);
+            std::ostringstream oss;
+            oss << "Unexpected token '" << current_token_.value << "' (" << token_type_name(current_token_.type_)
+                << ") at line " << current_token_.line << ", column " << current_token_.column << ".";
+            return std::unexpected(oss.str());
         }
         }
     }
@@ -137,7 +174,11 @@ namespace choochoo::json {
         }
         while (true) {
             if (current_token_.type_ != token::Type::STRING) {
-                return std::unexpected("Expected string key in object");
+                std::ostringstream oss;
+                oss << "Expected string key in object, but found '" << current_token_.value << "' ("
+                    << token_type_name(current_token_.type_) << ") at line " << current_token_.line << ", column "
+                    << current_token_.column << ".";
+                return std::unexpected(oss.str());
             }
             auto key_result = process_string(current_token_.value);
             if (!key_result)
@@ -162,7 +203,11 @@ namespace choochoo::json {
                 break;
             }
             else {
-                return std::unexpected("Expected ',' or '}' in object");
+                std::ostringstream oss;
+                oss << "Expected ',' or '}' in object, but found '" << current_token_.value << "' ("
+                    << token_type_name(current_token_.type_) << ") at line " << current_token_.line << ", column "
+                    << current_token_.column << ".";
+                return std::unexpected(oss.str());
             }
         }
         return Value::object(std::move(obj));
@@ -191,7 +236,11 @@ namespace choochoo::json {
                 break;
             }
             else {
-                return std::unexpected("Expected ',' or ']' in array");
+                std::ostringstream oss;
+                oss << "Expected ',' or ']' in array, but found '" << current_token_.value << "' ("
+                    << token_type_name(current_token_.type_) << ") at line " << current_token_.line << ", column "
+                    << current_token_.column << ".";
+                return std::unexpected(oss.str());
             }
         }
         return Value::array(std::move(arr));

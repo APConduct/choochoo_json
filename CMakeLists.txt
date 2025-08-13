@@ -29,13 +29,31 @@ target_include_directories(choochoo_json
         $<INSTALL_INTERFACE:include>
 )
 
-# Example executable target
+# Example executable targets
 add_executable(choochoo_json_example
     examples/basic_usage.cpp
+)
+add_executable(choochoo_json_error_handling
+    examples/error_handling.cpp
+)
+add_executable(choochoo_json_nested_access
+    examples/nested_access.cpp
+)
+add_executable(choochoo_json_iteration
+    examples/iteration.cpp
 )
 
 target_link_libraries(choochoo_json_example PRIVATE choochoo_json)
 target_include_directories(choochoo_json_example PRIVATE include)
+
+target_link_libraries(choochoo_json_error_handling PRIVATE choochoo_json)
+target_include_directories(choochoo_json_error_handling PRIVATE include)
+
+target_link_libraries(choochoo_json_nested_access PRIVATE choochoo_json)
+target_include_directories(choochoo_json_nested_access PRIVATE include)
+
+target_link_libraries(choochoo_json_iteration PRIVATE choochoo_json)
+target_include_directories(choochoo_json_iteration PRIVATE include)
 
 # Add Catch2 test target
 add_executable(choochoo_json_tests
