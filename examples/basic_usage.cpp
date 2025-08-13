@@ -48,6 +48,33 @@ int main() {
                 else {
                     std::cout << "  'name' is not a string, type: " << static_cast<int>(value.type()) << "\n";
                 }
+
+                // --- Iterator usage examples ---
+
+                // If "scores" is an array, iterate using new iterator support
+                if (root.type() == choochoo::json::Type::OBJECT) {
+                    auto obj_opt = root.as_object();
+                    if (obj_opt && obj_opt->get().count("scores")) {
+                        const auto& scores_val = obj_opt->get().at("scores");
+                        if (scores_val.type() == choochoo::json::Type::ARRAY) {
+                            std::cout << "Scores (using iterator): ";
+                            for (const auto& score : scores_val) {
+                                auto num = score.as_number();
+                                if (num)
+                                    std::cout << *num << " ";
+                            }
+                            std::cout << std::endl;
+                        }
+                    }
+                }
+
+                // Iterate over object keys/values using iterator support
+                if (root.type() == choochoo::json::Type::OBJECT) {
+                    std::cout << "Iterating over object using obj_begin/obj_end:\n";
+                    for (auto it = root.obj_begin(); it != root.obj_end(); ++it) {
+                        std::cout << "  [" << it->first << "] type: " << static_cast<int>(it->second.type()) << "\n";
+                    }
+                }
             }
         }
     }

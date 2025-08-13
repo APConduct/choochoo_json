@@ -46,7 +46,26 @@ namespace choochoo::json {
         [[nodiscard]] std::optional<std::reference_wrapper<const std::vector<Value>>> as_array();
         [[nodiscard]] std::optional<std::reference_wrapper<std::unordered_map<std::string, Value>>> as_object();
 
+        // Const-qualified overloads for read-only access
+        [[nodiscard]] std::optional<std::reference_wrapper<const std::vector<Value>>> as_array() const;
+        [[nodiscard]] std::optional<std::reference_wrapper<const std::unordered_map<std::string, Value>>>
+        as_object() const;
+
         /// Pretty print the value as JSON
         std::string pretty(int indent = 0) const;
+
+        // --- Iterator support ---
+
+        // Array iterators
+        std::vector<Value>::iterator begin();
+        std::vector<Value>::iterator end();
+        std::vector<Value>::const_iterator begin() const;
+        std::vector<Value>::const_iterator end() const;
+
+        // Object iterators
+        std::unordered_map<std::string, Value>::iterator obj_begin();
+        std::unordered_map<std::string, Value>::iterator obj_end();
+        std::unordered_map<std::string, Value>::const_iterator obj_begin() const;
+        std::unordered_map<std::string, Value>::const_iterator obj_end() const;
     };
 } // namespace choochoo::json

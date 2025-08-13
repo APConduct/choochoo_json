@@ -153,11 +153,25 @@ namespace choochoo::json {
         return std::ref(storage_.array);
     }
 
+    std::optional<std::reference_wrapper<const std::vector<Value>>> Value::as_array() const {
+        if (type_ != Type::ARRAY) {
+            return std::nullopt;
+        }
+        return std::cref(storage_.array);
+    }
+
     std::optional<std::reference_wrapper<std::unordered_map<std::string, Value>>> Value::as_object() {
         if (type_ != Type::OBJECT) {
             return std::nullopt;
         }
         return std::ref(storage_.object);
+    }
+
+    std::optional<std::reference_wrapper<const std::unordered_map<std::string, Value>>> Value::as_object() const {
+        if (type_ != Type::OBJECT) {
+            return std::nullopt;
+        }
+        return std::cref(storage_.object);
     }
 
     std::string Value::pretty(int indent) const {
@@ -247,6 +261,52 @@ namespace choochoo::json {
         default:
             return "";
         }
+    }
+
+    // --- Iterator support ---
+
+    // Array iterators
+    std::vector<Value>::iterator Value::begin() {
+        if (type_ != Type::ARRAY)
+            throw std::logic_error("Value is not an array");
+        return storage_.array.begin();
+    }
+    std::vector<Value>::iterator Value::end() {
+        if (type_ != Type::ARRAY)
+            throw std::logic_error("Value is not an array");
+        return storage_.array.end();
+    }
+    std::vector<Value>::const_iterator Value::begin() const {
+        if (type_ != Type::ARRAY)
+            throw std::logic_error("Value is not an array");
+        return storage_.array.begin();
+    }
+    std::vector<Value>::const_iterator Value::end() const {
+        if (type_ != Type::ARRAY)
+            throw std::logic_error("Value is not an array");
+        return storage_.array.end();
+    }
+
+    // Object iterators
+    std::unordered_map<std::string, Value>::iterator Value::obj_begin() {
+        if (type_ != Type::OBJECT)
+            throw std::logic_error("Value is not an object");
+        return storage_.object.begin();
+    }
+    std::unordered_map<std::string, Value>::iterator Value::obj_end() {
+        if (type_ != Type::OBJECT)
+            throw std::logic_error("Value is not an object");
+        return storage_.object.end();
+    }
+    std::unordered_map<std::string, Value>::const_iterator Value::obj_begin() const {
+        if (type_ != Type::OBJECT)
+            throw std::logic_error("Value is not an object");
+        return storage_.object.begin();
+    }
+    std::unordered_map<std::string, Value>::const_iterator Value::obj_end() const {
+        if (type_ != Type::OBJECT)
+            throw std::logic_error("Value is not an object");
+        return storage_.object.end();
     }
 
 } // namespace choochoo::json

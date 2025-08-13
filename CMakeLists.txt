@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.28)
 project(choochoo_json)
+enable_testing()
 
 include(FetchContent)
 FetchContent_Declare(
@@ -43,6 +44,12 @@ add_executable(choochoo_json_iteration
     examples/iteration.cpp
 )
 
+add_executable(iterator_usage
+    examples/iterator_usage.cpp
+)
+target_link_libraries(iterator_usage PRIVATE choochoo_json)
+target_include_directories(iterator_usage PRIVATE include)
+
 target_link_libraries(choochoo_json_example PRIVATE choochoo_json)
 target_include_directories(choochoo_json_example PRIVATE include)
 
@@ -73,3 +80,16 @@ target_include_directories(choochoo_json_tests
         include
 )
 target_link_libraries(choochoo_json_tests PRIVATE choochoo_json Catch2::Catch2WithMain)
+add_test(NAME choochoo_json_tests COMMAND choochoo_json_tests)
+
+# Add iterator test target
+add_executable(choochoo_json_iterator_test
+    tests/test_iterator.cpp
+)
+target_include_directories(choochoo_json_iterator_test
+    PRIVATE
+        include
+)
+target_link_libraries(choochoo_json_iterator_test PRIVATE choochoo_json Catch2::Catch2WithMain)
+
+add_test(NAME choochoo_json_iterator_test COMMAND choochoo_json_iterator_test)

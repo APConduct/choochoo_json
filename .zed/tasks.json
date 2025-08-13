@@ -32,7 +32,11 @@
   },
   {
     "label": "Run Tests",
-    "command": "./cmake-build-debug/choochoo_json_tests",
+    "command": "sh",
+    "args": [
+      "-c",
+      "./cmake-build-debug/choochoo_json_tests && ./cmake-build-debug/choochoo_json_iterator_test"
+    ],
     "reveal": "always"
   },
 
@@ -74,6 +78,17 @@
   {
     "label": "Run Example: Iteration",
     "command": "./cmake-build-debug/choochoo_json_iteration",
+    "reveal": "always"
+  },
+
+  {
+    "label": "Build Example: Iterator Usage",
+    "command": "ninja",
+    "args": ["-C", "./cmake-build-debug", "iterator_usage"]
+  },
+  {
+    "label": "Run Example: Iterator Usage",
+    "command": "./cmake-build-debug/iterator_usage",
     "reveal": "always"
   },
 
