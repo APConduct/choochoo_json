@@ -16,10 +16,12 @@ This will install the library and headers to your system (see CMake install rule
 
 ## API Overview
 
-- **Lexer:** Tokenizes JSON input.
+- **Lexer:** Tokenizes JSON input (supports both string and stream input).
 - **Parser:** Parses tokens into a JSON value tree.
 - **Value:** Represents JSON values (object, array, string, number, etc.).
 - **Error Handling:** Uses `std::expected` for modern, explicit error reporting.
+- **Iterator Support:** Iterate over arrays and objects using STL-style iterators and range-based for loops.
+- **Streaming Support:** Parse JSON directly from any `std::istream` (e.g., file, network, stringstream).
 
 ## Examples
 
@@ -29,6 +31,9 @@ See the `examples/` directory for usage samples:
 - [Error Handling](examples/error_handling.cpp): Handle and report parse errors.
 - [Nested Access](examples/nested_access.cpp): Extract values from nested objects/arrays.
 - [Iteration](examples/iteration.cpp): Iterate over arrays and objects.
+- [Iterator Usage](examples/iterator_usage.cpp): STL-style iteration and algorithms.
+- [Streaming Usage](examples/streaming_usage.cpp): Parse JSON directly from streams.
+
 
 
 ## Features
@@ -36,6 +41,8 @@ See the `examples/` directory for usage samples:
 - Fast, standards-compliant JSON parsing
 - Modern C++23 error handling with `std::expected`
 - Easy to use API
+- STL-style iterator support for arrays and objects
+- Parse JSON from strings or any `std::istream` (streaming)
 - Example and test suite included
 
 ## Build & Test
@@ -62,6 +69,30 @@ auto result = parser.parse();
 if (result) {
     std::cout << result.value().pretty() << std::endl;
 }
+```
+
+### Iterator Example
+
+```cpp
+// Iterate over array values
+for (const auto& item : result.value().as_array()->get()) {
+    // Use item.as_number(), item.as_string(), etc.
+}
+
+// Iterate over object key-value pairs
+for (const auto& [key, value] : result.value().as_object()->get()) {
+    std::cout << key << ": " << value.pretty() << std::endl;
+}
+```
+
+### Streaming Example
+
+```cpp
+#include <sstream>
+std::istringstream stream(R"({"streamed": true, "numbers": [1,2,3]})");
+choochoo::json::Lexer lexer(stream);
+choochoo::json::Parser parser(lexer);
+auto result = parser.parse();
 ```
 
 ## Directory Structure
