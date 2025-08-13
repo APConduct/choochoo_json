@@ -1,14 +1,13 @@
 
 #include <cctype>
-#include <charconv>
 #include <cstddef>
+#include <exception>
 #include <expected>
 #include <functional>
 #include <iostream>
 #include <stdexcept>
 #include <string>
 #include <string_view>
-#include <system_error>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -444,6 +443,9 @@ namespace choochoo::json {
         std::reference_wrapper<Lexer> lexer_;
         Token current_token_;
 
+    public:
+        Token current_token() { return current_token_; }
+
         void advance() { current_token_ = lexer_.get().next_token(); }
 
         void expect(token::Type expected) {
@@ -502,11 +504,120 @@ namespace choochoo::json {
         }
 
         double process_number(std::string_view number_str) {
-            double result;
-            auto [ptr, ec] = std::from_chars(number_str.data(), number_str.data() + number_str.size(), result);
-
-            if (ec != std::errc{}) {
+            try {
+                // Convert std::string_view to std::string for stod
+                return std::stod(std::string(number_str));
+            }
+            catch (const std::exception&) {
                 throw std::runtime_error("Invalid number format");
+            }
+        }
+
+        Value parse_value() {
+            if (current_token_.type_ == token::Type::EOF_TOKEN) {
+                // Gracefully handle EOF at top-level
+                return Value::null();
+            }
+            switch (current_token_.type_) {
+            case token::Type::STRING: {
+                std::string processed = process_string(current_token_.value);
+                advance();
+                return Value::string(std::move(processed));
+            }
+            case token::Type::NUMBER: {
+                double num = process_number(current_token_.value);
+                advance();
+                return Value::number(num);
+            }
+            case token::Type::TRUE:
+                advance();
+                return Value::boolean(true);
+            case token::Type::FALSE:
+                advance();
+                return Value::boolean(false);
+            case token::Type::NULL_VALUE:
+                advance();
+                return Value::null();
+            case token::Type::LBRACE:
+                return parse_object();
+            case token::Type::LBRACKET:
+                return parse_array();
+            default:
+                std::cerr << "DEBUG: Unexpected token in parse_value\n";
+                std::cerr << "Token type: " << static_cast<int>(current_token_.type_) << ", value: '"
+                          << current_token_.value << "', line: " << current_token_.line
+                          << ", column: " << current_token_.column << std::endl;
+                throw std::runtime_error("Unexpected token in parse_value");
+            }
+        }
+        Value parse_object() {
+            expect(token::Type::LBRACE);
+            std::unordered_map<std::string, Value> obj;
+            if (current_token_.type_ == token::Type::RBRACE) {
+                advance();
+                return Value::object(std::move(obj));
+            }
+            while (true) {
+                if (current_token_.type_ != token::Type::STRING) {
+                    throw std::runtime_error("Expected string key in object");
+                }
+                std::string key = process_string(current_token_.value);
+                advance();
+                expect(token::Type::COLON);
+                Value value = parse_value();
+                obj[std::move(key)] = std::move(value);
+
+                if (current_token_.type_ == token::Type::COMMA) {
+                    advance();
+                    continue;
+                }
+                else if (current_token_.type_ == token::Type::RBRACE) {
+                    advance();
+                    break;
+                }
+                else {
+                    throw std::runtime_error("Expected ',' or '}' in object");
+                }
+            }
+            return Value::object(std::move(obj));
+        }
+
+        Value parse_array() {
+            expect(token::Type::LBRACKET);
+            std::vector<Value> arr;
+
+            if (current_token_.type_ == token::Type::RBRACKET) {
+                advance();
+                return Value::array(std::move(arr));
+            }
+
+            while (true) {
+                Value value = parse_value();
+                arr.push_back(std::move(value));
+
+                if (current_token_.type_ == token::Type::COMMA) {
+                    advance();
+                    continue;
+                }
+                else if (current_token_.type_ == token::Type::RBRACKET) {
+                    advance();
+                    break;
+                }
+                else {
+                    throw std::runtime_error("Expected ',' or ']' in array");
+                }
+            }
+            return Value::array(std::move(arr));
+        }
+
+    public:
+        explicit Parser(Lexer& lexer) : lexer_(lexer) { advance(); }
+
+        Value parse() {
+            Value result = parse_value();
+
+            if (current_token_.type_ != token::Type::EOF_TOKEN) {
+                throw std::runtime_error("Unexpected content after JSON value");
             }
             return result;
         }
@@ -516,19 +627,45 @@ namespace choochoo::json {
 
 int main() {
     std::string json_input = R"({
-    "name": "John",
-    "age": 30,
-    "active": true,
-    "data": null
-})";
+            "name": "John",
+            "age": 30,
+            "active": true,
+            "scores": [95, 87, 92],
+            "metadata": {"created": "2024", "version": 1.2}
+        })";
 
-    choochoo::json::Lexer lexer(json_input);
-    auto tokens = lexer.tokenize();
+    try {
+        choochoo::json::Lexer lexer(json_input);
+        auto tokens = lexer.tokenize();
 
-    std::cout << "Input received:" << "\n" << json_input << '\n' << '\n' << "Tokens:" << '\n';
+        std::cout << "Input received:" << "\n" << json_input << '\n' << '\n' << "Tokens:" << '\n';
 
-    for (const auto token : tokens) {
-        std::cout << "Type: " << static_cast<int>(token.type_) << ", Value: '" << token.value << "'"
-                  << ", Line: " << token.line << ", Column: " << token.column << '\n';
+        for (const auto token : tokens) {
+            std::cout << "Type: " << static_cast<int>(token.type_) << ", Value: '" << token.value << "'"
+                      << ", Line: " << token.line << ", Column: " << token.column << '\n';
+        }
+
+        choochoo::json::Parser parser(lexer);
+
+        auto root = parser.parse();
+
+        // Check for EOF after parsing root value
+        if (parser.current_token().type_ != choochoo::json::token::Type::EOF_TOKEN) {
+            throw std::runtime_error("Extra data after root JSON value");
+        }
+
+        std::cout << "Successfully parsed JSON!" << std::endl;
+        std::cout << "Root type: " << static_cast<int>(root.type()) << std::endl;
+
+        // Example access
+        if (root.type() == choochoo::json::Type::OBJECT) {
+            const auto& obj = root.as_object();
+            if (obj->get().find("name") != obj->get().end()) {
+                std::cout << "Name: " << obj->get().at("name").as_string()->get() << std::endl;
+            }
+        }
+    }
+    catch (const std::exception& e) {
+        std::cerr << "Parser error: " << e.what() << '\n';
     }
 }
