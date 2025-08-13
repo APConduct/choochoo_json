@@ -33,7 +33,7 @@ namespace choochoo::json {
             return {};
         }
 
-        std::string process_string(std::string_view raw_string) {
+        std::expected<std::string, std::string> process_string(std::string_view raw_string) {
             std::string result;
             result.reserve(raw_string.size());
 
@@ -65,7 +65,7 @@ namespace choochoo::json {
                         result += '\t';
                         break;
                     default:
-                        throw std::runtime_error("Invalid escape sequence");
+                        return std::unexpected("Invalid escape sequence");
                     }
                     ++i;
                 }
@@ -92,7 +92,10 @@ namespace choochoo::json {
             }
             switch (current_token_.type_) {
             case token::Type::STRING: {
-                std::string processed = process_string(current_token_.value);
+                auto processed_result = process_string(current_token_.value);
+                if (!processed_result)
+                    return std::unexpected(processed_result.error());
+                std::string processed = std::move(processed_result.value());
                 advance();
                 return Value::string(std::move(processed));
             }
@@ -152,7 +155,10 @@ namespace choochoo::json {
                 if (current_token_.type_ != token::Type::STRING) {
                     return std::unexpected("Expected string key in object");
                 }
-                std::string key = process_string(current_token_.value);
+                auto key_result = process_string(current_token_.value);
+                if (!key_result)
+                    return std::unexpected(key_result.error());
+                std::string key = std::move(key_result.value());
                 advance();
                 auto expect_result = expect(token::Type::COLON);
                 if (!expect_result)

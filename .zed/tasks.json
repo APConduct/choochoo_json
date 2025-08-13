@@ -31,6 +31,11 @@
     "reveal": "always"
   },
   {
+    "label": "Run Tests",
+    "command": "./cmake-build-debug/choochoo_json_tests",
+    "reveal": "always"
+  },
+  {
     "label": "Clean",
     "command": "rm",
     "args": [
