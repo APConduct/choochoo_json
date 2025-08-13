@@ -29,12 +29,13 @@ target_include_directories(choochoo_json
         $<INSTALL_INTERFACE:include>
 )
 
-# Executable target
-add_executable(choochoo_json_exe
-    src/main.cpp
+# Example executable target
+add_executable(choochoo_json_example
+    examples/basic_usage.cpp
 )
 
-target_link_libraries(choochoo_json_exe PRIVATE choochoo_json)
+target_link_libraries(choochoo_json_example PRIVATE choochoo_json)
+target_include_directories(choochoo_json_example PRIVATE include)
 
 # Add Catch2 test target
 add_executable(choochoo_json_tests
