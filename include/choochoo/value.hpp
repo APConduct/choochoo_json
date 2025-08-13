@@ -25,253 +25,29 @@ namespace choochoo::json {
         } storage_{};
 
     public:
-        Value() : type_(Type::NULL_VALUE) {}
+        Value();
+        ~Value();
+        Value(const Value& other);
+        Value(Value&& other) noexcept;
+        Value& operator=(const Value& other);
+        Value& operator=(Value&& other) noexcept;
 
-        ~Value() {
-            switch (type_) {
-            case Type::STRING:
-                storage_.string.~basic_string();
-                break;
-            case Type::OBJECT:
-                storage_.object.~unordered_map();
-                break;
-            case Type::ARRAY:
-                storage_.array.~vector();
-                break;
-            case Type::BOOLEAN:
-            case Type::NUMBER:
-            default:
-                break;
-            }
-        }
+        static Value null();
+        static Value boolean(const bool b);
+        static Value number(const double n);
+        static Value string(std::string s = "");
+        static Value array(std::vector<Value> arr = {});
+        static Value object(std::unordered_map<std::string, Value> obj = {});
 
-        Value(const Value& other) : type_(other.type_) {
-            switch (type_) {
-            case Type::BOOLEAN:
-                storage_.boolean = other.storage_.boolean;
-                break;
-            case Type::NUMBER:
-                storage_.number = other.storage_.number;
-                break;
-            case Type::STRING:
-                new (&storage_.string) std::string(other.storage_.string);
-                break;
-            case Type::ARRAY:
-                new (&storage_.array) std::vector(other.storage_.array);
-                break;
-            case Type::OBJECT:
-                new (&storage_.object) std::unordered_map(other.storage_.object);
-                break;
-            case Type::NULL_VALUE:
-                break;
-            }
-        }
+        [[nodiscard]] Type type() const;
 
-        Value(Value&& other) noexcept : type_(other.type_) {
-            switch (type_) {
-            case Type::STRING:
-                new (&storage_.string) std::string(std::move(other.storage_.string));
-                break;
-            case Type::ARRAY:
-                new (&storage_.array) std::vector(std::move(other.storage_.array));
-                break;
-            case Type::OBJECT:
-                new (&storage_.object) std::unordered_map(std::move(other.storage_.object));
-                break;
-            case Type::BOOLEAN:
-                storage_.boolean = other.storage_.boolean;
-                break;
-            case Type::NUMBER:
-                storage_.number = other.storage_.number;
-                break;
-            case Type::NULL_VALUE:
-            default:
-                break;
-            }
-            other.type_ = Type::NULL_VALUE;
-        }
-
-        Value& operator=(const Value& other) {
-            // TODO: Fully implement assignment operator
-            if (this != &other) {
-                this->~Value();
-                new (this) Value(other);
-            }
-            return *this;
-        }
-
-        Value& operator=(Value&& other) noexcept {
-            // TODO: Fully implement move assignment operator
-            if (this != &other) {
-                this->~Value();
-                new (this) Value(std::move(other));
-            }
-            return *this;
-        }
-
-        static Value null() { return {}; }
-
-        static Value boolean(const bool b) {
-            Value v;
-            v.type_ = Type::BOOLEAN;
-            v.storage_.boolean = b;
-            return v;
-        }
-
-        static Value number(const double n) {
-            Value v;
-            v.type_ = Type::NUMBER;
-            v.storage_.number = n;
-            return v;
-        }
-
-        static Value string(std::string s = "") {
-            Value v;
-            v.type_ = Type::STRING;
-            new (&v.storage_.string) std::string(std::move(s));
-            return v;
-        }
-
-        static Value array(std::vector<Value> arr = {}) {
-            Value v;
-            v.type_ = Type::ARRAY;
-            new (&v.storage_.array) std::vector(std::move(arr));
-            return v;
-        }
-
-        static Value object(std::unordered_map<std::string, Value> obj = {}) {
-            Value v;
-            v.type_ = Type::OBJECT;
-            new (&v.storage_.object) std::unordered_map(std::move(obj));
-            return v;
-        }
-
-        [[nodiscard]] Type type() const { return type_; }
-
-
-        [[nodiscard]] std::optional<double> as_number() const {
-            if (type_ != Type::NUMBER) {
-                return std::nullopt;
-            }
-            return storage_.number;
-        };
-
-        [[nodiscard]] std::optional<bool> as_boolean() const {
-            if (type_ != Type::BOOLEAN) {
-                return std::nullopt;
-            }
-            return storage_.boolean;
-        }
-
-        [[nodiscard]] std::optional<std::reference_wrapper<const std::string>> as_string() const {
-            if (type_ != Type::STRING) {
-                return std::nullopt;
-            }
-            return std::ref(storage_.string);
-        }
-
-        [[nodiscard]] std::optional<std::reference_wrapper<const std::vector<Value>>> as_array() {
-            if (type_ != Type::ARRAY) {
-                return std::nullopt;
-            }
-            return std::ref(storage_.array);
-        }
-
-        [[nodiscard]] std::optional<std::reference_wrapper<std::unordered_map<std::string, Value>>> as_object() {
-            if (type_ != Type::OBJECT) {
-                return std::nullopt;
-            }
-            return std::ref(storage_.object);
-        }
+        [[nodiscard]] std::optional<double> as_number() const;
+        [[nodiscard]] std::optional<bool> as_boolean() const;
+        [[nodiscard]] std::optional<std::reference_wrapper<const std::string>> as_string() const;
+        [[nodiscard]] std::optional<std::reference_wrapper<const std::vector<Value>>> as_array();
+        [[nodiscard]] std::optional<std::reference_wrapper<std::unordered_map<std::string, Value>>> as_object();
 
         /// Pretty print the value as JSON
-        std::string pretty(int indent = 0) const {
-            const std::string indent_str(indent, ' ');
-            const std::string indent_next(indent + 2, ' ');
-
-            switch (type_) {
-            case Type::NULL_VALUE:
-                return "null";
-            case Type::BOOLEAN:
-                return storage_.boolean ? "true" : "false";
-            case Type::NUMBER: {
-                std::ostringstream oss;
-                oss << storage_.number;
-                return oss.str();
-            }
-            case Type::STRING: {
-                std::string out = "\"";
-                for (char c : storage_.string) {
-                    switch (c) {
-                    case '\"':
-                        out += "\\\"";
-                        break;
-                    case '\\':
-                        out += "\\\\";
-                        break;
-                    case '\b':
-                        out += "\\b";
-                        break;
-                    case '\f':
-                        out += "\\f";
-                        break;
-                    case '\n':
-                        out += "\\n";
-                        break;
-                    case '\r':
-                        out += "\\r";
-                        break;
-                    case '\t':
-                        out += "\\t";
-                        break;
-                    default:
-                        if (static_cast<unsigned char>(c) < 0x20) {
-                            out += "\\u";
-                            char buf[5];
-                            snprintf(buf, sizeof(buf), "%04x", c);
-                            out += buf;
-                        }
-                        else {
-                            out += c;
-                        }
-                    }
-                }
-                out += "\"";
-                return out;
-            }
-            case Type::ARRAY: {
-                const auto& arr = storage_.array;
-                if (arr.empty())
-                    return "[]";
-                std::string out = "[\n";
-                for (size_t i = 0; i < arr.size(); ++i) {
-                    out += indent_next + arr[i].pretty(indent + 2);
-                    if (i + 1 < arr.size())
-                        out += ",";
-                    out += "\n";
-                }
-                out += indent_str + "]";
-                return out;
-            }
-            case Type::OBJECT: {
-                const auto& obj = storage_.object;
-                if (obj.empty())
-                    return "{}";
-                std::string out = "{\n";
-                size_t i = 0;
-                for (const auto& [key, value] : obj) {
-                    out += indent_next + "\"" + key + "\": " + value.pretty(indent + 2);
-                    if (i + 1 < obj.size())
-                        out += ",";
-                    out += "\n";
-                    ++i;
-                }
-                out += indent_str + "}";
-                return out;
-            }
-            default:
-                return "";
-            }
-        }
+        std::string pretty(int indent = 0) const;
     };
 } // namespace choochoo::json

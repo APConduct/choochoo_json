@@ -15,14 +15,26 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 
-add_executable(choochoo_json
-    src/main.cpp
+# Library target
+add_library(choochoo_json STATIC
+    src/value.cpp
+    src/parser.cpp
+    src/lexer.cpp
+    # Add other source files as needed
 )
 
 target_include_directories(choochoo_json
-    PRIVATE
-        include
+    PUBLIC
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        $<INSTALL_INTERFACE:include>
 )
+
+# Executable target
+add_executable(choochoo_json_exe
+    src/main.cpp
+)
+
+target_link_libraries(choochoo_json_exe PRIVATE choochoo_json)
 
 # Add Catch2 test target
 add_executable(choochoo_json_tests
@@ -32,4 +44,4 @@ target_include_directories(choochoo_json_tests
     PRIVATE
         include
 )
-target_link_libraries(choochoo_json_tests PRIVATE Catch2::Catch2WithMain)
+target_link_libraries(choochoo_json_tests PRIVATE choochoo_json Catch2::Catch2WithMain)
