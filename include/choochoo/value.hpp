@@ -185,8 +185,93 @@ namespace choochoo::json {
         }
 
         /// Pretty print the value as JSON
-        std::stringstream pretty() {
-            // TODO// implement pretty printing
+        std::string pretty(int indent = 0) const {
+            const std::string indent_str(indent, ' ');
+            const std::string indent_next(indent + 2, ' ');
+
+            switch (type_) {
+            case Type::NULL_VALUE:
+                return "null";
+            case Type::BOOLEAN:
+                return storage_.boolean ? "true" : "false";
+            case Type::NUMBER: {
+                std::ostringstream oss;
+                oss << storage_.number;
+                return oss.str();
+            }
+            case Type::STRING: {
+                std::string out = "\"";
+                for (char c : storage_.string) {
+                    switch (c) {
+                    case '\"':
+                        out += "\\\"";
+                        break;
+                    case '\\':
+                        out += "\\\\";
+                        break;
+                    case '\b':
+                        out += "\\b";
+                        break;
+                    case '\f':
+                        out += "\\f";
+                        break;
+                    case '\n':
+                        out += "\\n";
+                        break;
+                    case '\r':
+                        out += "\\r";
+                        break;
+                    case '\t':
+                        out += "\\t";
+                        break;
+                    default:
+                        if (static_cast<unsigned char>(c) < 0x20) {
+                            out += "\\u";
+                            char buf[5];
+                            snprintf(buf, sizeof(buf), "%04x", c);
+                            out += buf;
+                        }
+                        else {
+                            out += c;
+                        }
+                    }
+                }
+                out += "\"";
+                return out;
+            }
+            case Type::ARRAY: {
+                const auto& arr = storage_.array;
+                if (arr.empty())
+                    return "[]";
+                std::string out = "[\n";
+                for (size_t i = 0; i < arr.size(); ++i) {
+                    out += indent_next + arr[i].pretty(indent + 2);
+                    if (i + 1 < arr.size())
+                        out += ",";
+                    out += "\n";
+                }
+                out += indent_str + "]";
+                return out;
+            }
+            case Type::OBJECT: {
+                const auto& obj = storage_.object;
+                if (obj.empty())
+                    return "{}";
+                std::string out = "{\n";
+                size_t i = 0;
+                for (const auto& [key, value] : obj) {
+                    out += indent_next + "\"" + key + "\": " + value.pretty(indent + 2);
+                    if (i + 1 < obj.size())
+                        out += ",";
+                    out += "\n";
+                    ++i;
+                }
+                out += indent_str + "}";
+                return out;
+            }
+            default:
+                return "";
+            }
         }
     };
 } // namespace choochoo::json

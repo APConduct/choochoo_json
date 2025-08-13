@@ -28,6 +28,8 @@ int main() {
         std::cout << "Successfully parsed JSON!" << std::endl;
         std::cout << "Root type: " << static_cast<int>(root.type()) << std::endl;
 
+        std::cout << "Pretty JSON:\n" << root.pretty() << std::endl;
+
         // Example access
         if (root.type() == choochoo::json::Type::OBJECT) {
             const auto& obj = root.as_object();
