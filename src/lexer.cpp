@@ -99,10 +99,10 @@ namespace choochoo::json {
 
             std::string value;
             bool escape = false;
-            std::cout << "[scan_string] buffer before: ";
-            for (char c : stream_buffer_)
-                std::cout << "'" << c << "' ";
-            std::cout << std::endl;
+            // std::cout << "[scan_string] buffer before: ";
+            // for (char c : stream_buffer_)
+            //     std::cout << "'" << c << "' ";
+            // std::cout << std::endl;
 
             while (true) {
                 char ch = current_char();
@@ -157,11 +157,11 @@ namespace choochoo::json {
             }
             advance(); // skip closing quote
 
-            std::cout << "[scan_string] value='" << value << "'" << std::endl;
-            std::cout << "[scan_string] buffer after: ";
-            for (char c : stream_buffer_)
-                std::cout << "'" << c << "' ";
-            std::cout << std::endl;
+            // std::cout << "[scan_string] value='" << value << "'" << std::endl;
+            // std::cout << "[scan_string] buffer after: ";
+            // for (char c : stream_buffer_)
+            //     std::cout << "'" << c << "' ";
+            // std::cout << std::endl;
 
             return Token{token::Type::STRING, value, start_line, start_column};
         }
@@ -204,10 +204,10 @@ namespace choochoo::json {
             size_t start_column = stream_column_;
             std::string value;
 
-            std::cout << "[scan_number] buffer before: ";
-            for (char c : stream_buffer_)
-                std::cout << "'" << c << "' ";
-            std::cout << std::endl;
+            // std::cout << "[scan_number] buffer before: ";
+            // for (char c : stream_buffer_)
+            //     std::cout << "'" << c << "' ";
+            // std::cout << std::endl;
 
             auto is_number_char = [](char c) {
                 return std::isdigit(c) || c == '-' || c == '+' || c == '.' || c == 'e' || c == 'E';
@@ -219,11 +219,11 @@ namespace choochoo::json {
                 advance();
             }
 
-            std::cout << "[scan_number] value='" << value << "'" << std::endl;
-            std::cout << "[scan_number] buffer after: ";
-            for (char c : stream_buffer_)
-                std::cout << "'" << c << "' ";
-            std::cout << std::endl;
+            // std::cout << "[scan_number] value='" << value << "'" << std::endl;
+            // std::cout << "[scan_number] buffer after: ";
+            // for (char c : stream_buffer_)
+            //     std::cout << "'" << c << "' ";
+            // std::cout << std::endl;
 
             // Validate the number format
             try {
@@ -352,11 +352,10 @@ namespace choochoo::json {
 
         if (using_stream_) {
             if (current_char() == '\0') {
-                std::cout << "[next_token] EOF at line " << stream_line_ << ", column " << stream_column_ << std::endl;
-                std::cout << "[next_token] Buffer: ";
-                for (char c : stream_buffer_)
-                    std::cout << "'" << c << "' ";
-                std::cout << std::endl;
+                // std::cout << "[next_token] EOF at line " << stream_line_ << ", column " << stream_column_ <<
+                // std::endl; std::cout << "[next_token] Buffer: "; for (char c : stream_buffer_)
+                //     std::cout << "'" << c << "' ";
+                // std::cout << std::endl;
                 return Token{token::Type::EOF_TOKEN, "", stream_line_, stream_column_};
             }
         }
@@ -370,12 +369,13 @@ namespace choochoo::json {
         size_t current_column = using_stream_ ? stream_column_ : column_;
 
         if (using_stream_) {
-            std::cout << "[next_token] Processing char '" << ch << "' (int: " << int(ch) << ") at line " << stream_line_
-                      << ", column " << stream_column_ << std::endl;
-            std::cout << "[next_token] Buffer: ";
-            for (char c : stream_buffer_)
-                std::cout << "'" << c << "' ";
-            std::cout << std::endl;
+            // std::cout << "[next_token] Processing char '" << ch << "' (int: " << int(ch) << ") at line " <<
+            // stream_line_
+            //           << ", column " << stream_column_ << std::endl;
+            // std::cout << "[next_token] Buffer: ";
+            // for (char c : stream_buffer_)
+            //     std::cout << "'" << c << "' ";
+            // std::cout << std::endl;
         }
 
         Token token;
@@ -383,7 +383,7 @@ namespace choochoo::json {
         case '{':
             advance();
             if (using_stream_) {
-                std::cout << "[next_token] Token: LBRACE" << std::endl;
+                // std::cout << "[next_token] Token: LBRACE" << std::endl;
                 token = Token{token::Type::LBRACE, "{", stream_line_, current_column};
             }
             else {
@@ -393,7 +393,7 @@ namespace choochoo::json {
         case '}':
             advance();
             if (using_stream_) {
-                std::cout << "[next_token] Token: RBRACE" << std::endl;
+                // std::cout << "[next_token] Token: RBRACE" << std::endl;
                 token = Token{token::Type::RBRACE, "}", stream_line_, current_column};
             }
             else {
@@ -403,7 +403,7 @@ namespace choochoo::json {
         case '[':
             advance();
             if (using_stream_) {
-                std::cout << "[next_token] Token: LBRACKET" << std::endl;
+                // std::cout << "[next_token] Token: LBRACKET" << std::endl;
                 token = Token{token::Type::LBRACKET, "[", stream_line_, current_column};
             }
             else {
@@ -414,7 +414,7 @@ namespace choochoo::json {
         case ']':
             advance();
             if (using_stream_) {
-                std::cout << "[next_token] Token: RBRACKET" << std::endl;
+                // std::cout << "[next_token] Token: RBRACKET" << std::endl;
                 token = Token{token::Type::RBRACKET, "]", stream_line_, current_column};
             }
             else {
@@ -425,7 +425,7 @@ namespace choochoo::json {
         case ',':
             advance();
             if (using_stream_) {
-                std::cout << "[next_token] Token: COMMA" << std::endl;
+                // std::cout << "[next_token] Token: COMMA" << std::endl;
                 token = Token{token::Type::COMMA, ",", stream_line_, current_column};
             }
             else {
@@ -435,7 +435,7 @@ namespace choochoo::json {
         case ':':
             advance();
             if (using_stream_) {
-                std::cout << "[next_token] Token: COLON" << std::endl;
+                // std::cout << "[next_token] Token: COLON" << std::endl;
                 token = Token{token::Type::COLON, ":", stream_line_, current_column};
             }
             else {
@@ -443,8 +443,6 @@ namespace choochoo::json {
             }
             break;
         case '"':
-            if (using_stream_)
-                std::cout << "[next_token] Token: STRING" << std::endl;
             token = scan_string();
             break;
         case '-':
@@ -458,20 +456,16 @@ namespace choochoo::json {
         case '7':
         case '8':
         case '9':
-            if (using_stream_)
-                std::cout << "[next_token] Token: NUMBER" << std::endl;
             token = scan_number();
             break;
         default:
             if (std::isalpha(ch)) {
-                if (using_stream_)
-                    std::cout << "[next_token] Token: KEYWORD" << std::endl;
                 token = scan_keyword();
             }
             else {
                 advance();
                 if (using_stream_) {
-                    std::cout << "[next_token] Token: INVALID ('" << ch << "')" << std::endl;
+                    // std::cout << "[next_token] Token: INVALID ('" << ch << "')" << std::endl;
                     token = Token{token::Type::INVALID, std::string(1, ch), stream_line_, current_column};
                 }
                 else {
@@ -482,12 +476,12 @@ namespace choochoo::json {
             break;
         }
         if (using_stream_) {
-            std::cout << "[next_token] Returned token: type=" << static_cast<int>(token.type_) << ", value='"
-                      << token.value << "', line=" << token.line << ", column=" << token.column << std::endl;
-            std::cout << "[next_token] Buffer after token: ";
-            for (char c : stream_buffer_)
-                std::cout << "'" << c << "' ";
-            std::cout << std::endl;
+            // std::cout << "[next_token] Returned token: type=" << static_cast<int>(token.type_) << ", value='"
+            //           << token.value << "', line=" << token.line << ", column=" << token.column << std::endl;
+            // std::cout << "[next_token] Buffer after token: ";
+            // for (char c : stream_buffer_)
+            //     std::cout << "'" << c << "' ";
+            // std::cout << std::endl;
         }
         return token;
     }

@@ -105,9 +105,10 @@ namespace choochoo::json {
     }
 
     std::expected<Value, std::string> Parser::parse_value() {
-        std::cout << "[parse_value] current_token_: type=" << token_type_name(current_token_.type_) << ", value='"
-                  << current_token_.value << "', line=" << current_token_.line << ", column=" << current_token_.column
-                  << std::endl;
+        // std::cout << "[parse_value] current_token_: type=" << token_type_name(current_token_.type_) << ", value='"
+        //           << current_token_.value << "', line=" << current_token_.line << ", column=" <<
+        //           current_token_.column
+        //           << std::endl;
         if (current_token_.type_ == token::Type::EOF_TOKEN) {
             return std::unexpected("No value to parse (unexpected EOF)");
         }

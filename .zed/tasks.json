@@ -35,7 +35,9 @@
     "command": "sh",
     "args": [
       "-c",
-      "./cmake-build-debug/choochoo_json_tests && ./cmake-build-debug/choochoo_json_iterator_test"
+      "./cmake-build-debug/choochoo_json_tests ",
+      "&& ./cmake-build-debug/choochoo_json_iterator_test",
+      "&& ./cmake-build-debug/choochoo_json_streaming_test"
     ],
     "reveal": "always"
   },
