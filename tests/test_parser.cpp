@@ -1,6 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include "choochoo/lexer.hpp"
-#include "choochoo/parser.hpp"
+#include "choochoo/json.hpp"
 
 TEST_CASE("Valid JSON parses successfully") {
     std::string json =

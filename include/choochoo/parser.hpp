@@ -1,12 +1,8 @@
 #pragma once
 #include <expected>
 #include <functional>
-#include <stdexcept>
 #include <string>
 #include <string_view>
-#include <unordered_map>
-#include <utility>
-#include <vector>
 #include "choochoo/lexer.hpp"
 #include "choochoo/token.hpp"
 #include "choochoo/value.hpp"
