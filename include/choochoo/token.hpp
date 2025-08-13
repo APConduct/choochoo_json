@@ -1,4 +1,5 @@
 #pragma once
+#include <string>
 #include <string_view>
 
 namespace choochoo::json {
@@ -22,7 +23,7 @@ namespace choochoo::json {
 
     struct Token {
         token::Type type_{};
-        std::string_view value;
+        std::string value;
         size_t line{};
         size_t column{};
     };

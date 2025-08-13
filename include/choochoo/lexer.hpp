@@ -1,5 +1,7 @@
 #pragma once
 #include <cctype>
+#include <deque>
+#include <istream>
 #include <string_view>
 #include <vector>
 #include "choochoo/token.hpp"
@@ -8,11 +10,18 @@
 namespace choochoo::json {
     struct Lexer {
     protected:
+        // For string input
         std::string_view input_;
         size_t position_{}, line_{}, column_{};
 
+        // For stream input
+        std::istream* input_stream_{nullptr};
+        std::deque<char> stream_buffer_;
+        bool using_stream_{false};
+        size_t stream_line_{1}, stream_column_{1};
+
         [[nodiscard]] char current_char() const;
-        [[nodiscard]] char peek_char(size_t offset = 1) const;
+        [[nodiscard]] char peek_char(size_t offset = 1);
         void advance();
         void skip_whitespace();
         [[nodiscard]] Token make_token(token::Type type, size_t start_pos, size_t length) const;
@@ -22,6 +31,7 @@ namespace choochoo::json {
 
     public:
         explicit Lexer(std::string_view input);
+        explicit Lexer(std::istream& input);
 
         Token next_token();
         std::vector<Token> tokenize();

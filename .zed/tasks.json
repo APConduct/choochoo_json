@@ -91,6 +91,16 @@
     "command": "./cmake-build-debug/iterator_usage",
     "reveal": "always"
   },
+  {
+    "label": "Build Example: Streaming Usage",
+    "command": "ninja",
+    "args": ["-C", "./cmake-build-debug", "streaming_usage"]
+  },
+  {
+    "label": "Run Example: Streaming Usage",
+    "command": "./cmake-build-debug/streaming_usage",
+    "reveal": "always"
+  },
 
   {
     "label": "Clean",

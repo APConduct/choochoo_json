@@ -50,6 +50,12 @@ add_executable(iterator_usage
 target_link_libraries(iterator_usage PRIVATE choochoo_json)
 target_include_directories(iterator_usage PRIVATE include)
 
+add_executable(streaming_usage
+    examples/streaming_usage.cpp
+)
+target_link_libraries(streaming_usage PRIVATE choochoo_json)
+target_include_directories(streaming_usage PRIVATE include)
+
 target_link_libraries(choochoo_json_example PRIVATE choochoo_json)
 target_include_directories(choochoo_json_example PRIVATE include)
 
@@ -93,3 +99,15 @@ target_include_directories(choochoo_json_iterator_test
 target_link_libraries(choochoo_json_iterator_test PRIVATE choochoo_json Catch2::Catch2WithMain)
 
 add_test(NAME choochoo_json_iterator_test COMMAND choochoo_json_iterator_test)
+
+# Add streaming test target
+add_executable(choochoo_json_streaming_test
+    tests/test_streaming.cpp
+)
+target_include_directories(choochoo_json_streaming_test
+    PRIVATE
+        include
+)
+target_link_libraries(choochoo_json_streaming_test PRIVATE choochoo_json Catch2::Catch2WithMain)
+
+add_test(NAME choochoo_json_streaming_test COMMAND choochoo_json_streaming_test)
