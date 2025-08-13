@@ -3,10 +3,21 @@
 #include <cstddef>
 #include <iostream>
 #include <string>
+#include <unordered_map>
 #include <utility>
 #include "choochoo/lexer.hpp"
 #include "choochoo/parser.hpp"
 #include "choochoo/value.hpp"
+
+// Helper to find interned key pointer in object map
+const std::string* find_key(const std::unordered_map<const std::string*, choochoo::json::Value>& obj,
+                            const std::string& key) {
+    for (const auto& [kptr, _] : obj) {
+        if (*kptr == key)
+            return kptr;
+    }
+    return nullptr;
+}
 
 int main() {
     std::string json_input = R"({
@@ -41,7 +52,7 @@ int main() {
         std::cout << "Root object keys:\n";
         for (const auto& [key, value] : obj->get()) {
             std::cout << "  Key: " << key << ", Type: " << static_cast<int>(value.type()) << "\n";
-            if (key == "name") {
+            if (*key == "name") {
                 if (value.type() == choochoo::json::Type::STRING) {
                     std::cout << "  'name' value: " << value.as_string()->get() << "\n";
                 }
@@ -54,8 +65,9 @@ int main() {
                 // If "scores" is an array, iterate using new iterator support
                 if (root.type() == choochoo::json::Type::OBJECT) {
                     auto obj_opt = root.as_object();
-                    if (obj_opt && obj_opt->get().count("scores")) {
-                        const auto& scores_val = obj_opt->get().at("scores");
+                    const std::string* scores_kptr = find_key(obj_opt->get(), "scores");
+                    if (obj_opt && scores_kptr) {
+                        const auto& scores_val = obj_opt->get().at(scores_kptr);
                         if (scores_val.type() == choochoo::json::Type::ARRAY) {
                             std::cout << "Scores (using iterator): ";
                             for (const auto& score : scores_val) {
@@ -72,7 +84,7 @@ int main() {
                 if (root.type() == choochoo::json::Type::OBJECT) {
                     std::cout << "Iterating over object using obj_begin/obj_end:\n";
                     for (auto it = root.obj_begin(); it != root.obj_end(); ++it) {
-                        std::cout << "  [" << it->first << "] type: " << static_cast<int>(it->second.type()) << "\n";
+                        std::cout << "  [" << *(it->first) << "] type: " << static_cast<int>(it->second.type()) << "\n";
                     }
                 }
             }

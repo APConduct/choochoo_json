@@ -16,7 +16,7 @@ namespace choochoo::json {
             bool boolean{};
             double number;
             std::string string;
-            std::unordered_map<std::string, Value> object;
+            std::unordered_map<const std::string*, Value> object;
             std::vector<Value> array;
 
             Storage() {}
@@ -36,7 +36,7 @@ namespace choochoo::json {
         static Value number(const double n);
         static Value string(std::string s = "");
         static Value array(std::vector<Value> arr = {});
-        static Value object(std::unordered_map<std::string, Value> obj = {});
+        static Value object(std::unordered_map<const std::string*, Value> obj = {});
 
         [[nodiscard]] Type type() const;
 
@@ -44,11 +44,11 @@ namespace choochoo::json {
         [[nodiscard]] std::optional<bool> as_boolean() const;
         [[nodiscard]] std::optional<std::reference_wrapper<const std::string>> as_string() const;
         [[nodiscard]] std::optional<std::reference_wrapper<const std::vector<Value>>> as_array();
-        [[nodiscard]] std::optional<std::reference_wrapper<std::unordered_map<std::string, Value>>> as_object();
+        [[nodiscard]] std::optional<std::reference_wrapper<std::unordered_map<const std::string*, Value>>> as_object();
 
         // Const-qualified overloads for read-only access
         [[nodiscard]] std::optional<std::reference_wrapper<const std::vector<Value>>> as_array() const;
-        [[nodiscard]] std::optional<std::reference_wrapper<const std::unordered_map<std::string, Value>>>
+        [[nodiscard]] std::optional<std::reference_wrapper<const std::unordered_map<const std::string*, Value>>>
         as_object() const;
 
         /// Pretty print the value as JSON
@@ -63,9 +63,9 @@ namespace choochoo::json {
         std::vector<Value>::const_iterator end() const;
 
         // Object iterators
-        std::unordered_map<std::string, Value>::iterator obj_begin();
-        std::unordered_map<std::string, Value>::iterator obj_end();
-        std::unordered_map<std::string, Value>::const_iterator obj_begin() const;
-        std::unordered_map<std::string, Value>::const_iterator obj_end() const;
+        std::unordered_map<const std::string*, Value>::iterator obj_begin();
+        std::unordered_map<const std::string*, Value>::iterator obj_end();
+        std::unordered_map<const std::string*, Value>::const_iterator obj_begin() const;
+        std::unordered_map<const std::string*, Value>::const_iterator obj_end() const;
     };
 } // namespace choochoo::json

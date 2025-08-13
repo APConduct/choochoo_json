@@ -4,6 +4,16 @@
 #include <unordered_map>
 #include <vector>
 
+// Helper to find interned key pointer in object map
+const std::string* find_key(const std::unordered_map<const std::string*, choochoo::json::Value>& obj,
+                            const std::string& key) {
+    for (const auto& [kptr, _] : obj) {
+        if (*kptr == key)
+            return kptr;
+    }
+    return nullptr;
+}
+
 int main() {
     std::string json_input = R"({
         "numbers": [1, 2, 3, 4, 5],
@@ -27,8 +37,9 @@ int main() {
     // --- Array iteration example ---
     std::cout << "Iterating over 'numbers' array using range-based for:\n";
     auto obj_opt = root.as_object();
-    if (obj_opt && obj_opt->get().count("numbers")) {
-        const auto& numbers_val = obj_opt->get().at("numbers");
+    const std::string* numbers_kptr = obj_opt ? find_key(obj_opt->get(), "numbers") : nullptr;
+    if (obj_opt && numbers_kptr) {
+        const auto& numbers_val = obj_opt->get().at(numbers_kptr);
         if (numbers_val.type() == choochoo::json::Type::ARRAY) {
             for (const auto& num : numbers_val) {
                 auto n = num.as_number();
@@ -42,11 +53,13 @@ int main() {
 
     // --- Array iteration using manual iterators ---
     std::cout << "Iterating over 'languages' array using manual iterators:\n";
-    if (obj_opt && obj_opt->get().count("person")) {
-        const auto& person_val = obj_opt->get().at("person");
+    const std::string* person_kptr = obj_opt ? find_key(obj_opt->get(), "person") : nullptr;
+    if (obj_opt && person_kptr) {
+        const auto& person_val = obj_opt->get().at(person_kptr);
         auto person_obj = person_val.as_object();
-        if (person_obj && person_obj->get().count("languages")) {
-            const auto& langs_val = person_obj->get().at("languages");
+        const std::string* langs_kptr = person_obj ? find_key(person_obj->get(), "languages") : nullptr;
+        if (person_obj && langs_kptr) {
+            const auto& langs_val = person_obj->get().at(langs_kptr);
             if (langs_val.type() == choochoo::json::Type::ARRAY) {
                 for (auto it = langs_val.begin(); it != langs_val.end(); ++it) {
                     auto str = it->as_string();
@@ -61,11 +74,11 @@ int main() {
 
     // --- Object iteration example ---
     std::cout << "Iterating over 'person' object using obj_begin/obj_end:\n";
-    if (obj_opt && obj_opt->get().count("person")) {
-        const auto& person_val = obj_opt->get().at("person");
+    if (obj_opt && person_kptr) {
+        const auto& person_val = obj_opt->get().at(person_kptr);
         if (person_val.type() == choochoo::json::Type::OBJECT) {
             for (auto it = person_val.obj_begin(); it != person_val.obj_end(); ++it) {
-                std::cout << "  " << it->first << ": ";
+                std::cout << "  " << *(it->first) << ": ";
                 if (it->second.type() == choochoo::json::Type::STRING) {
                     std::cout << it->second.as_string()->get();
                 }
@@ -85,8 +98,8 @@ int main() {
 
     // --- STL algorithm compatibility example ---
     std::cout << "Using std::find_if to search for number 3 in 'numbers':\n";
-    if (obj_opt && obj_opt->get().count("numbers")) {
-        const auto& numbers_val = obj_opt->get().at("numbers");
+    if (obj_opt && numbers_kptr) {
+        const auto& numbers_val = obj_opt->get().at(numbers_kptr);
         if (numbers_val.type() == choochoo::json::Type::ARRAY) {
             auto it = std::find_if(numbers_val.begin(), numbers_val.end(), [](const choochoo::json::Value& v) {
                 auto n = v.as_number();

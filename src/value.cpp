@@ -116,7 +116,7 @@ namespace choochoo::json {
         return v;
     }
 
-    Value Value::object(std::unordered_map<std::string, Value> obj) {
+    Value Value::object(std::unordered_map<const std::string*, Value> obj) {
         Value v;
         v.type_ = Type::OBJECT;
         new (&v.storage_.object) std::unordered_map(std::move(obj));
@@ -160,14 +160,15 @@ namespace choochoo::json {
         return std::cref(storage_.array);
     }
 
-    std::optional<std::reference_wrapper<std::unordered_map<std::string, Value>>> Value::as_object() {
+    std::optional<std::reference_wrapper<std::unordered_map<const std::string*, Value>>> Value::as_object() {
         if (type_ != Type::OBJECT) {
             return std::nullopt;
         }
         return std::ref(storage_.object);
     }
 
-    std::optional<std::reference_wrapper<const std::unordered_map<std::string, Value>>> Value::as_object() const {
+    std::optional<std::reference_wrapper<const std::unordered_map<const std::string*, Value>>>
+    Value::as_object() const {
         if (type_ != Type::OBJECT) {
             return std::nullopt;
         }
@@ -249,7 +250,7 @@ namespace choochoo::json {
             std::string out = "{\n";
             size_t i = 0;
             for (const auto& [key, value] : obj) {
-                out += indent_next + "\"" + key + "\": " + value.pretty(indent + 2);
+                out += indent_next + "\"" + *key + "\": " + value.pretty(indent + 2);
                 if (i + 1 < obj.size())
                     out += ",";
                 out += "\n";
@@ -288,22 +289,22 @@ namespace choochoo::json {
     }
 
     // Object iterators
-    std::unordered_map<std::string, Value>::iterator Value::obj_begin() {
+    std::unordered_map<const std::string*, Value>::iterator Value::obj_begin() {
         if (type_ != Type::OBJECT)
             throw std::logic_error("Value is not an object");
         return storage_.object.begin();
     }
-    std::unordered_map<std::string, Value>::iterator Value::obj_end() {
+    std::unordered_map<const std::string*, Value>::iterator Value::obj_end() {
         if (type_ != Type::OBJECT)
             throw std::logic_error("Value is not an object");
         return storage_.object.end();
     }
-    std::unordered_map<std::string, Value>::const_iterator Value::obj_begin() const {
+    std::unordered_map<const std::string*, Value>::const_iterator Value::obj_begin() const {
         if (type_ != Type::OBJECT)
             throw std::logic_error("Value is not an object");
         return storage_.object.begin();
     }
-    std::unordered_map<std::string, Value>::const_iterator Value::obj_end() const {
+    std::unordered_map<const std::string*, Value>::const_iterator Value::obj_end() const {
         if (type_ != Type::OBJECT)
             throw std::logic_error("Value is not an object");
         return storage_.object.end();

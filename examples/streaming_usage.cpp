@@ -2,6 +2,17 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_map>
+
+// Helper to find interned key pointer in object map
+const std::string* find_key(const std::unordered_map<const std::string*, choochoo::json::Value>& obj,
+                            const std::string& key) {
+    for (const auto& [kptr, _] : obj) {
+        if (*kptr == key)
+            return kptr;
+    }
+    return nullptr;
+}
 
 int main() {
     // Simulate streaming input using std::istringstream
@@ -34,12 +45,14 @@ int main() {
     auto obj_opt = root.as_object();
     if (obj_opt) {
         const auto& obj = obj_opt->get();
-        if (obj.count("streamed")) {
-            auto streamed_val = obj.at("streamed").as_boolean();
+        const std::string* streamed_kptr = find_key(obj, "streamed");
+        if (streamed_kptr) {
+            auto streamed_val = obj.at(streamed_kptr).as_boolean();
             std::cout << "streamed: " << (streamed_val.value() ? "true" : "false") << std::endl;
         }
-        if (obj.count("numbers")) {
-            const auto& numbers_val = obj.at("numbers");
+        const std::string* numbers_kptr = find_key(obj, "numbers");
+        if (numbers_kptr) {
+            const auto& numbers_val = obj.at(numbers_kptr);
             if (numbers_val.type() == choochoo::json::Type::ARRAY) {
                 std::cout << "numbers: ";
                 for (const auto& num : numbers_val) {
@@ -50,13 +63,19 @@ int main() {
                 std::cout << std::endl;
             }
         }
-        if (obj.count("info")) {
-            const auto& info_val = obj.at("info");
+        const std::string* info_kptr = find_key(obj, "info");
+        if (info_kptr) {
+            const auto& info_val = obj.at(info_kptr);
             auto info_obj = info_val.as_object();
             if (info_obj) {
-                std::cout << "info.source: " << info_obj->get().at("source").as_string()->get() << std::endl;
-                std::cout << "info.valid: " << (info_obj->get().at("valid").as_boolean().value() ? "true" : "false")
-                          << std::endl;
+                const auto& info_map = info_obj->get();
+                const std::string* source_kptr = find_key(info_map, "source");
+                const std::string* valid_kptr = find_key(info_map, "valid");
+                if (source_kptr)
+                    std::cout << "info.source: " << info_map.at(source_kptr).as_string()->get() << std::endl;
+                if (valid_kptr)
+                    std::cout << "info.valid: " << (info_map.at(valid_kptr).as_boolean().value() ? "true" : "false")
+                              << std::endl;
             }
         }
     }

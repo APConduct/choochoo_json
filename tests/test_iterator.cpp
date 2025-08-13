@@ -1,9 +1,20 @@
 #include <algorithm>
 #include <catch2/catch_test_macros.hpp>
 #include <string>
+#include <unordered_map>
 #include <unordered_set>
 #include <vector>
 #include "choochoo/json.hpp"
+
+// Helper to find interned key pointer in object map
+const std::string* find_key(const std::unordered_map<const std::string*, choochoo::json::Value>& obj,
+                            const std::string& key) {
+    for (const auto& [kptr, _] : obj) {
+        if (*kptr == key)
+            return kptr;
+    }
+    return nullptr;
+}
 
 TEST_CASE("Array iterator: range-based for and manual iteration") {
     using choochoo::json::Type;
@@ -43,8 +54,12 @@ TEST_CASE("Object iterator: range-based for and manual iteration") {
     using choochoo::json::Type;
     using choochoo::json::Value;
 
-    std::unordered_map<std::string, Value> obj = {
-        {"a", Value::number(10)}, {"b", Value::number(20)}, {"c", Value::number(30)}};
+    std::unordered_map<const std::string*, Value> obj;
+    std::unordered_set<std::string> key_pool;
+    for (const auto& k : {"a", "b", "c"}) {
+        auto [it, inserted] = key_pool.insert(std::string(k));
+        obj.emplace(&(*it), Value::number(k == std::string("a") ? 10 : k == std::string("b") ? 20 : 30));
+    }
     Value obj_val = Value::object(obj);
 
     // Range-based for (via as_object)
@@ -52,8 +67,8 @@ TEST_CASE("Object iterator: range-based for and manual iteration") {
     REQUIRE(obj_opt.has_value());
     std::unordered_set<std::string> keys;
     double sum = 0;
-    for (const auto& [key, val] : obj_opt.value().get()) {
-        keys.insert(key);
+    for (const auto& [keyptr, val] : obj_opt.value().get()) {
+        keys.insert(*keyptr);
         auto num = val.as_number();
         REQUIRE(num.has_value());
         sum += *num;
@@ -65,7 +80,7 @@ TEST_CASE("Object iterator: range-based for and manual iteration") {
     keys.clear();
     sum = 0;
     for (auto it = obj_val.obj_begin(); it != obj_val.obj_end(); ++it) {
-        keys.insert(it->first);
+        keys.insert(*(it->first));
         auto num = it->second.as_number();
         REQUIRE(num.has_value());
         sum += *num;
@@ -75,7 +90,7 @@ TEST_CASE("Object iterator: range-based for and manual iteration") {
 
     // STL algorithm compatibility
     auto found =
-        std::find_if(obj_val.obj_begin(), obj_val.obj_end(), [](const auto& pair) { return pair.first == "b"; });
+        std::find_if(obj_val.obj_begin(), obj_val.obj_end(), [](const auto& pair) { return *pair.first == "b"; });
     REQUIRE(found != obj_val.obj_end());
     REQUIRE(found->second.as_number().value() == 20);
 }

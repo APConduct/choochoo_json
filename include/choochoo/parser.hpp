@@ -3,6 +3,7 @@
 #include <functional>
 #include <string>
 #include <string_view>
+#include <unordered_set>
 #include "choochoo/lexer.hpp"
 #include "choochoo/token.hpp"
 #include "choochoo/value.hpp"
@@ -12,6 +13,7 @@ namespace choochoo::json {
     private:
         std::reference_wrapper<Lexer> lexer_;
         Token current_token_;
+        std::unordered_set<std::string> key_pool_; // For string interning of object keys
 
     public:
         Token current_token();

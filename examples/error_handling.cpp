@@ -1,5 +1,6 @@
 #include <choochoo/json.hpp>
 #include <iostream>
+#include <unordered_map>
 
 int main() {
     // Example of malformed JSON (missing value for "age")

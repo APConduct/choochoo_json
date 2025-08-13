@@ -1,5 +1,16 @@
 #include <choochoo/json.hpp>
 #include <iostream>
+#include <unordered_map>
+
+// Helper to find interned key pointer in object map
+const std::string* find_key(const std::unordered_map<const std::string*, choochoo::json::Value>& obj,
+                            const std::string& key) {
+    for (const auto& [kptr, _] : obj) {
+        if (*kptr == key)
+            return kptr;
+    }
+    return nullptr;
+}
 
 int main() {
     std::string json = R"({
@@ -17,7 +28,9 @@ int main() {
     }
 
     auto root = result.value();
-    auto fruits_opt = root.as_object()->get().at("fruits").as_array();
+    const auto& obj = root.as_object()->get();
+    const std::string* fruits_kptr = find_key(obj, "fruits");
+    auto fruits_opt = fruits_kptr ? obj.at(fruits_kptr).as_array() : std::nullopt;
     if (fruits_opt) {
         const auto& fruits = fruits_opt->get();
         std::cout << "Fruits: ";
@@ -30,14 +43,15 @@ int main() {
         std::cout << std::endl;
     }
 
-    auto prices_opt = root.as_object()->get().at("prices").as_object();
+    const std::string* prices_kptr = find_key(obj, "prices");
+    auto prices_opt = prices_kptr ? obj.at(prices_kptr).as_object() : std::nullopt;
     if (prices_opt) {
         const auto& prices = prices_opt->get();
         std::cout << "Prices:\n";
-        for (const auto& [fruit, price] : prices) {
+        for (const auto& [fruit_kptr, price] : prices) {
             auto num_opt = price.as_number();
             if (num_opt) {
-                std::cout << "  " << fruit << ": " << num_opt.value() << std::endl;
+                std::cout << "  " << *fruit_kptr << ": " << num_opt.value() << std::endl;
             }
         }
     }
