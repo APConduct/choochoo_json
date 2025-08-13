@@ -35,6 +35,48 @@
     "command": "./cmake-build-debug/choochoo_json_tests",
     "reveal": "always"
   },
+
+  {
+    "label": "Build Example: Basic Usage",
+    "command": "ninja",
+    "args": ["-C", "./cmake-build-debug", "choochoo_json_example"]
+  },
+  {
+    "label": "Run Example: Basic Usage",
+    "command": "./cmake-build-debug/choochoo_json_example",
+    "reveal": "always"
+  },
+  {
+    "label": "Build Example: Error Handling",
+    "command": "ninja",
+    "args": ["-C", "./cmake-build-debug", "choochoo_json_error_handling"]
+  },
+  {
+    "label": "Run Example: Error Handling",
+    "command": "./cmake-build-debug/choochoo_json_error_handling",
+    "reveal": "always"
+  },
+  {
+    "label": "Build Example: Nested Access",
+    "command": "ninja",
+    "args": ["-C", "./cmake-build-debug", "choochoo_json_nested_access"]
+  },
+  {
+    "label": "Run Example: Nested Access",
+    "command": "./cmake-build-debug/choochoo_json_nested_access",
+    "reveal": "always"
+  },
+  {
+    "label": "Build Example: Iteration",
+    "command": "ninja",
+    "args": ["-C", "./cmake-build-debug", "choochoo_json_iteration"]
+  },
+  {
+    "label": "Run Example: Iteration",
+    "command": "./cmake-build-debug/choochoo_json_iteration",
+    "reveal": "always"
+  },
+
   {
     "label": "Clean",
     "command": "rm",
