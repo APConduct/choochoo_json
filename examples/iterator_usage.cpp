@@ -2,7 +2,6 @@
 #include <iostream>
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 // Helper to find interned key pointer in object map
 const std::string* find_key(const std::unordered_map<const std::string*, choochoo::json::Value>& obj,

@@ -1,6 +1,5 @@
 #pragma once
 #include <cctype>
-#include <deque>
 #include <istream>
 #include <string_view>
 #include <vector>

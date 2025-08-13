@@ -1,5 +1,4 @@
 #include "choochoo/lexer.hpp"
-#include <deque>
 #include <iostream>
 #include <string>
 
