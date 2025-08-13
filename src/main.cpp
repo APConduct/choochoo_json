@@ -457,16 +457,12 @@ namespace choochoo::json {
         }
 
         std::string process_string(std::string_view raw_string) {
-            if (raw_string.size() < 2) {
-                throw std::runtime_error("Invalid string token");
-            }
-            std::string_view content = raw_string.substr(1, raw_string.size() - 2);
             std::string result;
-            result.reserve(content.size());
+            result.reserve(raw_string.size());
 
-            for (size_t i = 0; i < content.size(); ++i) {
-                if (content[i] == '\\' && i + 1 < content.size()) {
-                    switch (content[i + 1]) {
+            for (size_t i = 0; i < raw_string.size(); ++i) {
+                if (raw_string[i] == '\\' && i + 1 < raw_string.size()) {
+                    switch (raw_string[i + 1]) {
                     case '"':
                         result += '"';
                         break;
@@ -497,7 +493,7 @@ namespace choochoo::json {
                     ++i;
                 }
                 else {
-                    result += content[i];
+                    result += raw_string[i];
                 }
             }
             return result;
@@ -515,8 +511,7 @@ namespace choochoo::json {
 
         Value parse_value() {
             if (current_token_.type_ == token::Type::EOF_TOKEN) {
-                // Gracefully handle EOF at top-level
-                return Value::null();
+                throw std::runtime_error("No value to parse (unexpected EOF)");
             }
             switch (current_token_.type_) {
             case token::Type::STRING: {
@@ -636,14 +631,14 @@ int main() {
 
     try {
         choochoo::json::Lexer lexer(json_input);
-        auto tokens = lexer.tokenize();
+        // auto tokens = lexer.tokenize();
 
-        std::cout << "Input received:" << "\n" << json_input << '\n' << '\n' << "Tokens:" << '\n';
+        // std::cout << "Input received:" << "\n" << json_input << '\n' << '\n' << "Tokens:" << '\n';
 
-        for (const auto token : tokens) {
-            std::cout << "Type: " << static_cast<int>(token.type_) << ", Value: '" << token.value << "'"
-                      << ", Line: " << token.line << ", Column: " << token.column << '\n';
-        }
+        // for (const auto token : tokens) {
+        //     std::cout << "Type: " << static_cast<int>(token.type_) << ", Value: '" << token.value << "'"
+        //               << ", Line: " << token.line << ", Column: " << token.column << '\n';
+        // }
 
         choochoo::json::Parser parser(lexer);
 
@@ -660,8 +655,17 @@ int main() {
         // Example access
         if (root.type() == choochoo::json::Type::OBJECT) {
             const auto& obj = root.as_object();
-            if (obj->get().find("name") != obj->get().end()) {
-                std::cout << "Name: " << obj->get().at("name").as_string()->get() << std::endl;
+            std::cout << "Root object keys:\n";
+            for (const auto& [key, value] : obj->get()) {
+                std::cout << "  Key: " << key << ", Type: " << static_cast<int>(value.type()) << "\n";
+                if (key == "name") {
+                    if (value.type() == choochoo::json::Type::STRING) {
+                        std::cout << "  'name' value: " << value.as_string()->get() << "\n";
+                    }
+                    else {
+                        std::cout << "  'name' is not a string, type: " << static_cast<int>(value.type()) << "\n";
+                    }
+                }
             }
         }
     }
