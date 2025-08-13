@@ -16,7 +16,9 @@ namespace choochoo::json {
 
         // For stream input
         std::istream* input_stream_{nullptr};
-        std::deque<char> stream_buffer_;
+        static constexpr size_t STREAM_BUFFER_SIZE = 8;
+        char stream_buffer_[STREAM_BUFFER_SIZE]{};
+        size_t stream_head_{0}, stream_tail_{0}, stream_count_{0};
         bool using_stream_{false};
         size_t stream_line_{1}, stream_column_{1};
 

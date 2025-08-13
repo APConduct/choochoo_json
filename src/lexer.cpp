@@ -7,18 +7,19 @@ namespace choochoo::json {
 
     char Lexer::current_char() const {
         if (using_stream_) {
-            // Try to refill buffer if empty
-            if (stream_buffer_.empty() && input_stream_ && input_stream_->good()) {
+            // Refill buffer if empty
+            if (stream_count_ == 0 && input_stream_ && input_stream_->good()) {
                 int next = input_stream_->get();
                 if (next != std::char_traits<char>::eof()) {
-                    // Remove constness for stream_buffer_ (make it mutable in class definition)
-                    const_cast<std::deque<char>&>(stream_buffer_).push_back(static_cast<char>(next));
+                    const_cast<char&>(stream_buffer_[stream_tail_]) = static_cast<char>(next);
+                    const_cast<size_t&>(stream_tail_) = (stream_tail_ + 1) % STREAM_BUFFER_SIZE;
+                    const_cast<size_t&>(stream_count_)++;
                 }
             }
-            if (stream_buffer_.empty()) {
+            if (stream_count_ == 0) {
                 return '\0';
             }
-            return stream_buffer_.front();
+            return stream_buffer_[stream_head_];
         }
         return position_ < input_.size() ? input_[position_] : '\0';
     }
@@ -26,14 +27,18 @@ namespace choochoo::json {
     char Lexer::peek_char(size_t offset) {
         if (using_stream_) {
             // Fill buffer if needed
-            while (stream_buffer_.size() <= offset && input_stream_ && input_stream_->good()) {
+            while (stream_count_ <= offset && input_stream_ && input_stream_->good() &&
+                   stream_count_ < STREAM_BUFFER_SIZE) {
                 int next = input_stream_->get();
                 if (next == std::char_traits<char>::eof())
                     break;
-                stream_buffer_.push_back(static_cast<char>(next));
+                stream_buffer_[stream_tail_] = static_cast<char>(next);
+                stream_tail_ = (stream_tail_ + 1) % STREAM_BUFFER_SIZE;
+                stream_count_++;
             }
-            if (stream_buffer_.size() > offset) {
-                return stream_buffer_[offset];
+            if (stream_count_ > offset) {
+                size_t idx = (stream_head_ + offset) % STREAM_BUFFER_SIZE;
+                return stream_buffer_[idx];
             }
             return '\0';
         }
@@ -43,9 +48,10 @@ namespace choochoo::json {
 
     void Lexer::advance() {
         if (using_stream_) {
-            if (!stream_buffer_.empty()) {
-                char ch = stream_buffer_.front();
-                stream_buffer_.pop_front();
+            if (stream_count_ > 0) {
+                char ch = stream_buffer_[stream_head_];
+                stream_head_ = (stream_head_ + 1) % STREAM_BUFFER_SIZE;
+                stream_count_--;
                 if (ch == '\n') {
                     stream_line_++;
                     stream_column_ = 1;
@@ -54,12 +60,14 @@ namespace choochoo::json {
                     stream_column_++;
                 }
             }
-            // Always refill buffer after popping
-            while (stream_buffer_.size() < 1 && input_stream_ && input_stream_->good()) {
+            // Always refill buffer after popping if empty
+            while (stream_count_ < 1 && input_stream_ && input_stream_->good()) {
                 int next = input_stream_->get();
                 if (next == std::char_traits<char>::eof())
                     break;
-                stream_buffer_.push_back(static_cast<char>(next));
+                stream_buffer_[stream_tail_] = static_cast<char>(next);
+                stream_tail_ = (stream_tail_ + 1) % STREAM_BUFFER_SIZE;
+                stream_count_++;
             }
         }
         else {
@@ -342,7 +350,9 @@ namespace choochoo::json {
         if (input_stream_ && input_stream_->good()) {
             int next = input_stream_->get();
             if (next != std::char_traits<char>::eof()) {
-                stream_buffer_.push_back(static_cast<char>(next));
+                stream_buffer_[stream_tail_] = static_cast<char>(next);
+                stream_tail_ = (stream_tail_ + 1) % STREAM_BUFFER_SIZE;
+                stream_count_++;
             }
         }
     }
