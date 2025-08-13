@@ -88,7 +88,7 @@ namespace choochoo::json {
             // (You may want to buffer the token value in a real implementation)
             return Token{type, std::string(""), stream_line_, stream_column_ - length};
         }
-        return Token{type, std::string(input_.substr(start_pos, length)), line_, column_ - length};
+        return Token{type, std::string_view(input_.data() + start_pos, length), line_, column_ - length};
     }
 
     Token Lexer::scan_string() {
@@ -190,7 +190,7 @@ namespace choochoo::json {
         }
 
         size_t length = position_ - start_pos;
-        std::string str_value = std::string(input_.substr(start_pos, length));
+        std::string_view str_value = std::string_view(input_.data() + start_pos, length);
 
         advance();
 
@@ -281,7 +281,7 @@ namespace choochoo::json {
         }
 
         size_t length = position_ - start_pos;
-        return Token{token::Type::NUMBER, std::string(input_.substr(start_pos, length)), line_, start_column};
+        return Token{token::Type::NUMBER, std::string_view(input_.data() + start_pos, length), line_, start_column};
     }
 
     Token Lexer::scan_keyword() {
@@ -317,7 +317,7 @@ namespace choochoo::json {
         }
 
         size_t length = position_ - start_pos;
-        std::string word = std::string(input_.substr(start_pos, length));
+        std::string_view word = std::string_view(input_.data() + start_pos, length);
 
         token::Type type;
         if (word == "true") {
@@ -356,12 +356,12 @@ namespace choochoo::json {
                 // std::endl; std::cout << "[next_token] Buffer: "; for (char c : stream_buffer_)
                 //     std::cout << "'" << c << "' ";
                 // std::cout << std::endl;
-                return Token{token::Type::EOF_TOKEN, "", stream_line_, stream_column_};
+                return Token{token::Type::EOF_TOKEN, std::string(""), stream_line_, stream_column_};
             }
         }
         else {
             if (position_ >= input_.size()) {
-                return Token{token::Type::EOF_TOKEN, "", line_, column_};
+                return Token{token::Type::EOF_TOKEN, std::string_view(""), line_, column_};
             }
         }
 
@@ -383,63 +383,61 @@ namespace choochoo::json {
         case '{':
             advance();
             if (using_stream_) {
-                // std::cout << "[next_token] Token: LBRACE" << std::endl;
-                token = Token{token::Type::LBRACE, "{", stream_line_, current_column};
+                token = Token{token::Type::LBRACE, std::string("{"), stream_line_, current_column};
             }
             else {
-                token = Token{token::Type::LBRACE, std::string(input_.substr(position_ - 1, 1)), line_, current_column};
+                token = Token{token::Type::LBRACE, std::string_view(input_.data() + position_ - 1, 1), line_,
+                              current_column};
             }
             break;
         case '}':
             advance();
             if (using_stream_) {
-                // std::cout << "[next_token] Token: RBRACE" << std::endl;
-                token = Token{token::Type::RBRACE, "}", stream_line_, current_column};
+                token = Token{token::Type::RBRACE, std::string("}"), stream_line_, current_column};
             }
             else {
-                token = Token{token::Type::RBRACE, std::string(input_.substr(position_ - 1, 1)), line_, current_column};
+                token = Token{token::Type::RBRACE, std::string_view(input_.data() + position_ - 1, 1), line_,
+                              current_column};
             }
             break;
         case '[':
             advance();
             if (using_stream_) {
-                // std::cout << "[next_token] Token: LBRACKET" << std::endl;
-                token = Token{token::Type::LBRACKET, "[", stream_line_, current_column};
+                token = Token{token::Type::LBRACKET, std::string("["), stream_line_, current_column};
             }
             else {
-                token =
-                    Token{token::Type::LBRACKET, std::string(input_.substr(position_ - 1, 1)), line_, current_column};
+                token = Token{token::Type::LBRACKET, std::string_view(input_.data() + position_ - 1, 1), line_,
+                              current_column};
             }
             break;
         case ']':
             advance();
             if (using_stream_) {
-                // std::cout << "[next_token] Token: RBRACKET" << std::endl;
-                token = Token{token::Type::RBRACKET, "]", stream_line_, current_column};
+                token = Token{token::Type::RBRACKET, std::string("]"), stream_line_, current_column};
             }
             else {
-                token =
-                    Token{token::Type::RBRACKET, std::string(input_.substr(position_ - 1, 1)), line_, current_column};
+                token = Token{token::Type::RBRACKET, std::string_view(input_.data() + position_ - 1, 1), line_,
+                              current_column};
             }
             break;
         case ',':
             advance();
             if (using_stream_) {
-                // std::cout << "[next_token] Token: COMMA" << std::endl;
-                token = Token{token::Type::COMMA, ",", stream_line_, current_column};
+                token = Token{token::Type::COMMA, std::string(","), stream_line_, current_column};
             }
             else {
-                token = Token{token::Type::COMMA, std::string(input_.substr(position_ - 1, 1)), line_, current_column};
+                token = Token{token::Type::COMMA, std::string_view(input_.data() + position_ - 1, 1), line_,
+                              current_column};
             }
             break;
         case ':':
             advance();
             if (using_stream_) {
-                // std::cout << "[next_token] Token: COLON" << std::endl;
-                token = Token{token::Type::COLON, ":", stream_line_, current_column};
+                token = Token{token::Type::COLON, std::string(":"), stream_line_, current_column};
             }
             else {
-                token = Token{token::Type::COLON, std::string(input_.substr(position_ - 1, 1)), line_, current_column};
+                token = Token{token::Type::COLON, std::string_view(input_.data() + position_ - 1, 1), line_,
+                              current_column};
             }
             break;
         case '"':
@@ -465,11 +463,10 @@ namespace choochoo::json {
             else {
                 advance();
                 if (using_stream_) {
-                    // std::cout << "[next_token] Token: INVALID ('" << ch << "')" << std::endl;
                     token = Token{token::Type::INVALID, std::string(1, ch), stream_line_, current_column};
                 }
                 else {
-                    token = Token{token::Type::INVALID, std::string(input_.substr(position_ - 1, 1)), line_,
+                    token = Token{token::Type::INVALID, std::string_view(input_.data() + position_ - 1, 1), line_,
                                   current_column};
                 }
             }

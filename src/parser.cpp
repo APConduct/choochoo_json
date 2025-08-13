@@ -95,6 +95,17 @@ namespace choochoo::json {
         return result;
     }
 
+
+    // Helper to extract string from Token.value variant
+    static std::string_view token_string_view(const Token& token) {
+        if (std::holds_alternative<std::string_view>(token.value)) {
+            return std::get<std::string_view>(token.value);
+        }
+        else {
+            return std::get<std::string>(token.value);
+        }
+    }
+
     double Parser::process_number(std::string_view number_str) {
         try {
             return std::stod(std::string(number_str));
@@ -114,7 +125,7 @@ namespace choochoo::json {
         }
         switch (current_token_.type_) {
         case token::Type::STRING: {
-            auto processed_result = process_string(current_token_.value);
+            auto processed_result = process_string(token_string_view(current_token_));
             if (!processed_result)
                 return std::unexpected(processed_result.error());
             std::string processed = std::move(processed_result.value());
@@ -124,12 +135,12 @@ namespace choochoo::json {
         case token::Type::NUMBER: {
             double num;
             try {
-                num = process_number(current_token_.value);
+                num = process_number(token_string_view(current_token_));
             }
             catch (const std::exception&) {
                 std::ostringstream oss;
                 oss << "Invalid number format at line " << current_token_.line << ", column " << current_token_.column
-                    << ". Value: '" << current_token_.value << "'";
+                    << ". Value: '" << token_string_view(current_token_) << "'";
                 return std::unexpected(oss.str());
             }
             advance();
@@ -164,8 +175,9 @@ namespace choochoo::json {
         }
         default: {
             std::ostringstream oss;
-            oss << "Unexpected token '" << current_token_.value << "' (" << token_type_name(current_token_.type_)
-                << ") at line " << current_token_.line << ", column " << current_token_.column << ".";
+            oss << "Unexpected token '" << token_string_view(current_token_) << "' ("
+                << token_type_name(current_token_.type_) << ") at line " << current_token_.line << ", column "
+                << current_token_.column << ".";
             return std::unexpected(oss.str());
         }
         }
@@ -180,12 +192,12 @@ namespace choochoo::json {
         while (true) {
             if (current_token_.type_ != token::Type::STRING) {
                 std::ostringstream oss;
-                oss << "Expected string key in object, but found '" << current_token_.value << "' ("
+                oss << "Expected string key in object, but found '" << token_string_view(current_token_) << "' ("
                     << token_type_name(current_token_.type_) << ") at line " << current_token_.line << ", column "
                     << current_token_.column << ".";
                 return std::unexpected(oss.str());
             }
-            auto key_result = process_string(current_token_.value);
+            auto key_result = process_string(token_string_view(current_token_));
             if (!key_result)
                 return std::unexpected(key_result.error());
             std::string key = std::move(key_result.value());
@@ -209,7 +221,7 @@ namespace choochoo::json {
             }
             else {
                 std::ostringstream oss;
-                oss << "Expected ',' or '}' in object, but found '" << current_token_.value << "' ("
+                oss << "Expected ',' or '}' in object, but found '" << token_string_view(current_token_) << "' ("
                     << token_type_name(current_token_.type_) << ") at line " << current_token_.line << ", column "
                     << current_token_.column << ".";
                 return std::unexpected(oss.str());
@@ -242,7 +254,7 @@ namespace choochoo::json {
             }
             else {
                 std::ostringstream oss;
-                oss << "Expected ',' or ']' in array, but found '" << current_token_.value << "' ("
+                oss << "Expected ',' or ']' in array, but found '" << token_string_view(current_token_) << "' ("
                     << token_type_name(current_token_.type_) << ") at line " << current_token_.line << ", column "
                     << current_token_.column << ".";
                 return std::unexpected(oss.str());
