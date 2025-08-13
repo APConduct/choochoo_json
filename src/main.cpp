@@ -3,22 +3,20 @@
 #include <cstddef>
 #include <exception>
 #include <iostream>
-#include <stdexcept>
 #include <string>
 #include <utility>
 #include "choochoo/lexer.hpp"
 #include "choochoo/parser.hpp"
-#include "choochoo/token.hpp"
 #include "choochoo/value.hpp"
 
 int main() {
     std::string json_input = R"({
-            "name": "Perry",
-            "age": 20,
-            "active": true,
-            "scores": [95, 87, 92],
-            "metadata": {"created": "2025", "version": 1.2}
-        })";
+    "name": "Perry",
+    "age": 20,
+    "active": true,
+    "scores": [95, 87, 92],
+    "metadata": {"created": "2025", "version": 1.2}
+})";
 
     try {
         choochoo::json::Lexer lexer(json_input);
@@ -26,11 +24,6 @@ int main() {
         choochoo::json::Parser parser(lexer);
 
         auto root = parser.parse();
-
-        // Check for EOF after parsing root value
-        if (parser.current_token().type_ != choochoo::json::token::Type::EOF_TOKEN) {
-            throw std::runtime_error("Extra data after root JSON value");
-        }
 
         std::cout << "Successfully parsed JSON!" << std::endl;
         std::cout << "Root type: " << static_cast<int>(root.type()) << std::endl;

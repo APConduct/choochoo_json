@@ -1,6 +1,7 @@
 #pragma once
 #include <functional>
 #include <optional>
+#include <sstream>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -181,6 +182,11 @@ namespace choochoo::json {
                 return std::nullopt;
             }
             return std::ref(storage_.object);
+        }
+
+        /// Pretty print the value as JSON
+        std::stringstream pretty() {
+            // TODO// implement pretty printing
         }
     };
 } // namespace choochoo::json
