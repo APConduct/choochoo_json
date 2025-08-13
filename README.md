@@ -2,6 +2,35 @@
 
 A modern, performant C++ JSON parser library that just keeps chuggin (like high speed rail).
 
+## Installation
+
+You can build and install the library using CMake:
+
+```sh
+cmake -DCMAKE_BUILD_TYPE=Release -G Ninja -S . -B ./cmake-build-release
+ninja -C ./cmake-build-release
+ninja -C ./cmake-build-release install
+```
+
+This will install the library and headers to your system (see CMake install rules in `CMakeLists.txt`).
+
+## API Overview
+
+- **Lexer:** Tokenizes JSON input.
+- **Parser:** Parses tokens into a JSON value tree.
+- **Value:** Represents JSON values (object, array, string, number, etc.).
+- **Error Handling:** Uses `std::expected` for modern, explicit error reporting.
+
+## Examples
+
+See the `examples/` directory for usage samples:
+
+- [Basic Usage](examples/basic_usage.cpp): Parse and pretty-print JSON.
+- [Error Handling](examples/error_handling.cpp): Handle and report parse errors.
+- [Nested Access](examples/nested_access.cpp): Extract values from nested objects/arrays.
+- [Iteration](examples/iteration.cpp): Iterate over arrays and objects.
+
+
 ## Features
 
 - Fast, standards-compliant JSON parsing

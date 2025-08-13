@@ -46,6 +46,15 @@ add_executable(choochoo_json_iteration
 target_link_libraries(choochoo_json_example PRIVATE choochoo_json)
 target_include_directories(choochoo_json_example PRIVATE include)
 
+# Install rules for library and headers
+install(TARGETS choochoo_json
+    EXPORT choochoo_jsonTargets
+    ARCHIVE DESTINATION lib
+    LIBRARY DESTINATION lib
+    RUNTIME DESTINATION bin
+)
+install(DIRECTORY include/choochoo/ DESTINATION include/choochoo)
+
 target_link_libraries(choochoo_json_error_handling PRIVATE choochoo_json)
 target_include_directories(choochoo_json_error_handling PRIVATE include)
 
