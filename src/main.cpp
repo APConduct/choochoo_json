@@ -1,9 +1,14 @@
 
 #include <cctype>
+#include <charconv>
 #include <cstddef>
+#include <expected>
+#include <functional>
 #include <iostream>
+#include <stdexcept>
 #include <string>
 #include <string_view>
+#include <system_error>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -363,21 +368,21 @@ namespace choochoo::json {
             return v;
         }
 
-        static Value string(std::string s) {
+        static Value string(std::string s = "") {
             Value v;
             v.type_ = Type::STRING;
             new (&v.storage_.string) std::string(std::move(s));
             return v;
         }
 
-        static Value array(std::vector<Value> arr) {
+        static Value array(std::vector<Value> arr = {}) {
             Value v;
             v.type_ = Type::ARRAY;
             new (&v.storage_.array) std::vector(std::move(arr));
             return v;
         }
 
-        static Value object(std::unordered_map<std::string, Value> obj) {
+        static Value object(std::unordered_map<std::string, Value> obj = {}) {
             Value v;
             v.type_ = Type::OBJECT;
             new (&v.storage_.object) std::unordered_map(std::move(obj));
@@ -385,6 +390,126 @@ namespace choochoo::json {
         }
 
         [[nodiscard]] Type type() const { return type_; }
+
+        enum TypeErrorType {
+            NOT_A_BOOLEAN_ERROR,
+            NOT_A_NUMBER_ERROR,
+            NOT_A_STRING_ERROR,
+            NOT_AN_ARRAY_ERROR,
+            NOT_AN_OBJECT_ERROR,
+            NOT_NULL_ERROR
+        };
+
+        using TypeError = std::pair<TypeErrorType, std::string>;
+
+        [[nodiscard]] std::expected<double, TypeError> as_number() const {
+            if (type_ != Type::NUMBER) {
+                return std::unexpected<TypeError>(TypeError(NOT_A_NUMBER_ERROR, "VALUE IS NOT A NUMBER"));
+            }
+            return storage_.number;
+        };
+
+        [[nodiscard]] std::expected<bool, TypeError> as_boolean() const {
+            if (type_ != Type::BOOLEAN) {
+                return std::unexpected<TypeError>(TypeError(NOT_A_BOOLEAN_ERROR, "VALUE IS NOT A BOOLEAN"));
+            }
+            return storage_.boolean;
+        }
+
+        [[nodiscard]] std::expected<std::reference_wrapper<const std::string>, TypeError> as_string() const {
+            if (type_ != Type::STRING) {
+                return std::unexpected<TypeError>(TypeError(NOT_A_STRING_ERROR, "VALUE IS NOT A STRING"));
+            }
+            return std::ref(storage_.string);
+        }
+
+        [[nodiscard]] std::expected<std::reference_wrapper<const std::vector<Value>>, TypeError> as_array() {
+            if (type_ != Type::ARRAY) {
+                return std::unexpected<TypeError>(TypeError(NOT_AN_ARRAY_ERROR, "VALUE IS A NOT AN ARRAY"));
+            }
+            return std::ref(storage_.array);
+        }
+
+        [[nodiscard]] std::expected<std::reference_wrapper<std::unordered_map<std::string, Value>>, TypeError>
+        as_object() {
+            if (type_ != Type::OBJECT) {
+                return std::unexpected<TypeError>(TypeError(NOT_AN_OBJECT_ERROR, "VALUE IS NOT AN OBJECT"));
+            }
+            return std::ref(storage_.object);
+        }
+    };
+
+    struct Parser {
+    private:
+        std::reference_wrapper<Lexer> lexer_;
+        Token current_token_;
+
+        void advance() { current_token_ = lexer_.get().next_token(); }
+
+        void expect(token::Type expected) {
+            if (current_token_.type_ != expected) {
+                throw std::runtime_error("Unexpected tocken at line " + std::to_string(current_token_.line) +
+                                         "' column " + std::to_string(current_token_.column));
+            }
+            advance();
+        }
+
+        std::string process_string(std::string_view raw_string) {
+            if (raw_string.size() < 2) {
+                throw std::runtime_error("Invalid string token");
+            }
+            std::string_view content = raw_string.substr(1, raw_string.size() - 2);
+            std::string result;
+            result.reserve(content.size());
+
+            for (size_t i = 0; i < content.size(); ++i) {
+                if (content[i] == '\\' && i + 1 < content.size()) {
+                    switch (content[i + 1]) {
+                    case '"':
+                        result += '"';
+                        break;
+                    case '\\':
+                        result += '\\';
+                        break;
+                    case '/':
+                        result += '/';
+                        break;
+                    case 'b':
+                        result += '\b';
+                        break;
+                    case 'f':
+                        result += '\f';
+                        break;
+                    case 'n':
+                        result += '\n';
+                        break;
+                    case 'r':
+                        result += '\r';
+                        break;
+                    case 't':
+                        result += '\t';
+                        break;
+                    default:
+                        throw std::runtime_error("Invalid escape sequence");
+                    }
+                    ++i;
+                }
+                else {
+                    result += content[i];
+                }
+            }
+            return result;
+        }
+
+        double process_number(std::string_view number_str) {
+            double result;
+            auto [ptr, ec] = std::from_chars(number_str.data(), number_str.data() + number_str.size(), result);
+
+            if (ec != std::errc{}) {
+                throw std::runtime_error("Invalid number format");
+            }
+            return result;
+        }
     };
 
 } // namespace choochoo::json
