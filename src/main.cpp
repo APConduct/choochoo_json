@@ -2,8 +2,6 @@
 #include <cctype>
 #include <cstddef>
 #include <exception>
-#include <expected>
-#include <functional>
 #include <iostream>
 #include <stdexcept>
 #include <string>
@@ -15,11 +13,11 @@
 
 int main() {
     std::string json_input = R"({
-            "name": "John",
-            "age": 30,
+            "name": "Perry",
+            "age": 20,
             "active": true,
             "scores": [95, 87, 92],
-            "metadata": {"created": "2024", "version": 1.2}
+            "metadata": {"created": "2025", "version": 1.2}
         })";
 
     try {

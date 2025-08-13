@@ -1,6 +1,6 @@
 #pragma once
-#include <expected>
 #include <functional>
+#include <optional>
 #include <string>
 #include <unordered_map>
 #include <vector>
@@ -146,49 +146,38 @@ namespace choochoo::json {
 
         [[nodiscard]] Type type() const { return type_; }
 
-        enum TypeErrorType {
-            NOT_A_BOOLEAN_ERROR,
-            NOT_A_NUMBER_ERROR,
-            NOT_A_STRING_ERROR,
-            NOT_AN_ARRAY_ERROR,
-            NOT_AN_OBJECT_ERROR,
-            NOT_NULL_ERROR
-        };
 
-        using TypeError = std::pair<TypeErrorType, std::string>;
-
-        [[nodiscard]] std::expected<double, TypeError> as_number() const {
+        [[nodiscard]] std::optional<double> as_number() const {
             if (type_ != Type::NUMBER) {
-                return std::unexpected<TypeError>(TypeError(NOT_A_NUMBER_ERROR, "VALUE IS NOT A NUMBER"));
+                return std::nullopt;
             }
             return storage_.number;
         };
 
-        [[nodiscard]] std::expected<bool, TypeError> as_boolean() const {
+        [[nodiscard]] std::optional<bool> as_boolean() const {
             if (type_ != Type::BOOLEAN) {
-                return std::unexpected<TypeError>(TypeError(NOT_A_BOOLEAN_ERROR, "VALUE IS NOT A BOOLEAN"));
+                return std::nullopt;
             }
             return storage_.boolean;
         }
 
-        [[nodiscard]] std::expected<std::reference_wrapper<const std::string>, TypeError> as_string() const {
+        [[nodiscard]] std::optional<std::reference_wrapper<const std::string>> as_string() const {
             if (type_ != Type::STRING) {
-                return std::unexpected<TypeError>(TypeError(NOT_A_STRING_ERROR, "VALUE IS NOT A STRING"));
+                return std::nullopt;
             }
             return std::ref(storage_.string);
         }
 
-        [[nodiscard]] std::expected<std::reference_wrapper<const std::vector<Value>>, TypeError> as_array() {
+        [[nodiscard]] std::optional<std::reference_wrapper<const std::vector<Value>>> as_array() {
             if (type_ != Type::ARRAY) {
-                return std::unexpected<TypeError>(TypeError(NOT_AN_ARRAY_ERROR, "VALUE IS A NOT AN ARRAY"));
+                return std::nullopt;
             }
             return std::ref(storage_.array);
         }
 
-        [[nodiscard]] std::expected<std::reference_wrapper<std::unordered_map<std::string, Value>>, TypeError>
-        as_object() {
+        [[nodiscard]] std::optional<std::reference_wrapper<std::unordered_map<std::string, Value>>> as_object() {
             if (type_ != Type::OBJECT) {
-                return std::unexpected<TypeError>(TypeError(NOT_AN_OBJECT_ERROR, "VALUE IS NOT AN OBJECT"));
+                return std::nullopt;
             }
             return std::ref(storage_.object);
         }
