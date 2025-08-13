@@ -185,6 +185,7 @@ namespace choochoo::json {
 
     std::expected<Value, std::string> Parser::parse_object_body() {
         std::unordered_map<std::string, Value> obj;
+        obj.reserve(8); // TODO: Profile typical object sizes and adjust reservation for optimal performance.
         if (current_token_.type_ == token::Type::RBRACE) {
             advance();
             return Value::object(std::move(obj));
@@ -209,7 +210,7 @@ namespace choochoo::json {
             auto value_result = parse_value();
             if (!value_result)
                 return std::unexpected(value_result.error());
-            obj[std::move(key)] = std::move(value_result.value());
+            obj.emplace(std::move(key), std::move(value_result.value()));
 
             if (current_token_.type_ == token::Type::COMMA) {
                 advance();
@@ -232,6 +233,7 @@ namespace choochoo::json {
 
     std::expected<Value, std::string> Parser::parse_array_body() {
         std::vector<Value> arr;
+        arr.reserve(8); // TODO: Profile typical array sizes and adjust reservation for optimal performance.
 
         if (current_token_.type_ == token::Type::RBRACKET) {
             advance();
@@ -242,7 +244,7 @@ namespace choochoo::json {
             auto value_result = parse_value();
             if (!value_result)
                 return std::unexpected(value_result.error());
-            arr.push_back(std::move(value_result.value()));
+            arr.emplace_back(std::move(value_result.value()));
 
             if (current_token_.type_ == token::Type::COMMA) {
                 advance();
