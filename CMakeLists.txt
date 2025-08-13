@@ -10,3 +10,8 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_executable(choochoo_json
     src/main.cpp
 )
+
+target_include_directories(choochoo_json
+    PRIVATE
+        include
+)
