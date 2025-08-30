@@ -5,7 +5,6 @@
 #include <vector>
 #include "choochoo/token.hpp"
 
-
 namespace choochoo::json {
     struct Lexer {
     protected:

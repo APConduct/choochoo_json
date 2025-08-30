@@ -1,5 +1,6 @@
 #include <choochoo/json.hpp>
 #include <iostream>
+#include <print>
 #include <string>
 #include <unordered_map>
 
@@ -105,10 +106,10 @@ int main() {
                 return n && *n == 3;
             });
             if (it != numbers_val.end()) {
-                std::cout << "Found number 3!" << std::endl;
+                std::println("Found number 3!");
             }
             else {
-                std::cout << "Number 3 not found." << std::endl;
+                std::println("Number 3 not found.");
             }
         }
     }

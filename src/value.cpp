@@ -1,6 +1,6 @@
-#include "choochoo/value.hpp"
 #include <cstdio>
 #include <sstream>
+#include "choochoo/value.hpp"
 
 namespace choochoo::json {
 
