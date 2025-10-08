@@ -1,0 +1,8 @@
+[
+  {
+    "label": "Hi_test_dbg",
+    "adapter": "GDB",
+    "request": "launch",
+    "program": "${workspaceFolder}/cmake-build-debug/streaming_usage"
+  }
+]

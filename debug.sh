@@ -4,14 +4,16 @@
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_NAME="$(basename "$PROJECT_DIR")"
 
-# Use relative paths and smart detection
+# Use Homebrew LLVM with specific include and lib paths
 cmake \
 -DCMAKE_BUILD_TYPE=Debug \
 -DCMAKE_MAKE_PROGRAM=ninja \
--DCMAKE_C_COMPILER=/usr/bin/clang \
--DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+-DCMAKE_C_COMPILER=/opt/homebrew/opt/llvm/bin/clang \
+-DCMAKE_CXX_COMPILER=/opt/homebrew/opt/llvm/bin/clang++ \
 -DCMAKE_EXPORT_COMPILE_COMMANDS=ON \
--D CMAKE_CXX_FLAGS="-Wall -Wextra -Wshadow -Wpedantic -Wno-variadic-macros" \
+-DCMAKE_CXX_FLAGS="-Wall -Wextra -Wshadow -Wpedantic -Wno-variadic-macros -I/opt/homebrew/opt/llvm/include" \
+-DCMAKE_EXE_LINKER_FLAGS="-L/opt/homebrew/opt/llvm/lib/c++" \
+-DCMAKE_OSX_SYSROOT=$(xcrun --show-sdk-path) \
 -G Ninja \
 -S . \
 -B ./cmake-build-debug \
