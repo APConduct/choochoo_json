@@ -4,6 +4,9 @@
 PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_NAME="$(basename "$PROJECT_DIR")"
 
+# replace '-' with '_'
+PROJECT_NAME=${PROJECT_NAME//-/_}
+
 # Convert Unix-style paths to Windows-style paths
 C_COMPILER=$(cygpath -w /ucrt64/bin/clang)
 CXX_COMPILER=$(cygpath -w /ucrt64/bin/clang++)
