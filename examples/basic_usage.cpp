@@ -1,7 +1,6 @@
-#include <cctype>
-#include <cstddef>
 #include <iostream>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <utility>
 #include "choochoo/lexer.hpp"
@@ -10,7 +9,7 @@
 
 // Helper to find interned key pointer in object map
 const std::string* find_key(const std::unordered_map<const std::string*, choochoo::json::Value>& obj,
-                            const std::string& key) {
+                            std::string_view key) {
     for (const auto& [kptr, _] : obj) {
         if (*kptr == key)
             return kptr;
