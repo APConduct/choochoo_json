@@ -24,6 +24,10 @@ add_library(choochoo_json STATIC
     # Add other source files as needed
 )
 
+find_package(fmt REQUIRED)
+target_link_libraries(choochoo_json PRIVATE fmt::fmt)
+
+
 target_include_directories(choochoo_json
     PUBLIC
         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>

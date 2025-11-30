@@ -1,12 +1,12 @@
 #include <choochoo/json.hpp>
 #include <iostream>
-#include <print>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 
 // Helper to find interned key pointer in object map
 const std::string* find_key(const std::unordered_map<const std::string*, choochoo::json::Value>& obj,
-                            const std::string& key) {
+                            std::string_view key) {
     for (const auto& [kptr, _] : obj) {
         if (*kptr == key)
             return kptr;
@@ -106,10 +106,10 @@ int main() {
                 return n && *n == 3;
             });
             if (it != numbers_val.end()) {
-                std::println("Found number 3!");
+                std::cout << "Found number 3!" << std::endl;
             }
             else {
-                std::println("Number 3 not found.");
+                std::cout << "Number 3 not found." << std::endl;
             }
         }
     }
