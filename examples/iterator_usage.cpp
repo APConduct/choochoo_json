@@ -29,7 +29,7 @@ int main() {
 
     auto result = parser.parse();
     if (!result) {
-        std::cerr << "Parse error: " << result.error() << std::endl;
+        std::cerr << "Parse error: " << result.error() << '\n';
         return 1;
     }
     auto root = result.value();
@@ -47,7 +47,7 @@ int main() {
                     std::cout << *n << " ";
                 }
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
     }
 
@@ -67,7 +67,7 @@ int main() {
                         std::cout << str->get() << " ";
                     }
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
             }
         }
     }
@@ -91,7 +91,7 @@ int main() {
                 else {
                     std::cout << "[other]";
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
             }
         }
     }
@@ -120,15 +120,15 @@ int main() {
         root.begin(); // root is an object, not an array
     }
     catch (const std::logic_error& e) {
-        std::cout << "Caught exception as expected: " << e.what() << std::endl;
+        std::cout << "Caught exception as expected: " << e.what() << '\n';
     }
 
     try {
         root.obj_begin(); // root is an object, this should work
-        std::cout << "obj_begin() on object succeeded." << std::endl;
+        std::cout << "obj_begin() on object succeeded." << '\n';
     }
     catch (const std::logic_error& e) {
-        std::cout << "Unexpected exception: " << e.what() << std::endl;
+        std::cout << "Unexpected exception: " << e.what() << '\n';
     }
 
     return 0;

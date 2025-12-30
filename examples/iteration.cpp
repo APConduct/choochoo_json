@@ -23,7 +23,7 @@ int main() {
 
     auto result = parser.parse();
     if (!result) {
-        std::cerr << "Parse error: " << result.error() << std::endl;
+        std::cerr << "Parse error: " << result.error() << '\n';
         return 1;
     }
 
@@ -40,7 +40,7 @@ int main() {
                 std::cout << str_opt->get() << " ";
             }
         }
-        std::cout << std::endl;
+        std::cout << '\n';
     }
 
     const std::string* prices_kptr = find_key(obj, "prices");
@@ -51,7 +51,7 @@ int main() {
         for (const auto& [fruit_kptr, price] : prices) {
             auto num_opt = price.as_number();
             if (num_opt) {
-                std::cout << "  " << *fruit_kptr << ": " << num_opt.value() << std::endl;
+                std::cout << "  " << *fruit_kptr << ": " << num_opt.value() << '\n';
             }
         }
     }

@@ -91,8 +91,9 @@ namespace choochoo::json {
 
     Token Lexer::make_token(token::Type type, size_t start_pos, size_t length) const {
         if (using_stream_) {
-            // For streaming, we can't provide a string_view into the stream, so we use a placeholder
-            // (We may want to buffer the token value in a real implementation)
+            // For streaming, we can't provide a string_view into the stream,
+            // so we'll use a placeholder for now.
+            // NOTE: We may want to buffer the token value in a later rev of the implementation
             return Token{type, std::string(""), stream_line_, stream_column_ - length};
         }
         return Token{type, std::string_view(input_.data() + start_pos, length), line_, column_ - length};

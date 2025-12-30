@@ -26,14 +26,14 @@ int main() {
 
     auto result = parser.parse();
     if (!result) {
-        std::cerr << "Parse error: " << result.error() << std::endl;
+        std::cerr << "Parse error: " << result.error() << '\n';
         return 1;
     }
 
     auto root = result.value();
     auto user_obj_opt = root.as_object();
     if (!user_obj_opt) {
-        std::cerr << "Root is not an object." << std::endl;
+        std::cerr << "Root is not an object." << '\n';
         return 1;
     }
     const auto& obj = user_obj_opt->get();
@@ -45,20 +45,20 @@ int main() {
         const std::string* age_kptr = find_key(user_map, "age");
         const std::string* scores_kptr = find_key(user_map, "scores");
         if (name_kptr)
-            std::cout << "Name: " << user_map.at(name_kptr).as_string()->get() << std::endl;
+            std::cout << "Name: " << user_map.at(name_kptr).as_string()->get() << '\n';
         if (age_kptr)
-            std::cout << "Age: " << user_map.at(age_kptr).as_number().value() << std::endl;
+            std::cout << "Age: " << user_map.at(age_kptr).as_number().value() << '\n';
         auto scores = scores_kptr ? user_map.at(scores_kptr).as_array() : std::nullopt;
         if (scores) {
             std::cout << "Scores: ";
             for (const auto& score : scores->get()) {
                 std::cout << score.as_number().value() << " ";
             }
-            std::cout << std::endl;
+            std::cout << '\n';
         }
     }
     else {
-        std::cerr << "'user' is not an object." << std::endl;
+        std::cerr << "'user' is not an object." << '\n';
         return 1;
     }
     return 0;

@@ -43,20 +43,11 @@
   },
 
   {
-    "label": "Build Example: Basic Usage",
-    "command": "ninja",
-    "args": ["-C", "./cmake-build-debug", "choochoo_json_example"]
-  },
-  {
     "label": "Run Example: Basic Usage",
     "command": "./cmake-build-debug/choochoo_json_example",
     "reveal": "always"
   },
-  {
-    "label": "Build Example: Error Handling",
-    "command": "ninja",
-    "args": ["-C", "./cmake-build-debug", "choochoo_json_error_handling"]
-  },
+
   {
     "label": "Run Example: Error Handling",
     "command": "./cmake-build-debug/choochoo_json_error_handling",
@@ -144,5 +135,13 @@
       "if [ ! -d ./cmake-build-debug ]; then cmake -DCMAKE_BUILD_TYPE=Debug -DCMAKE_MAKE_PROGRAM=ninja -DCMAKE_C_COMPILER=clang -DCMAKE_CXX_COMPILER=clang++ -G Ninja -S . -B ./cmake-build-debug; fi && ninja -C ./cmake-build-debug && ./cmake-build-debug/choochoo_json"
     ],
     "reveal": "always"
+  },
+  {
+    "label": "debug iteration",
+    "command": "./debug.sh && ./cmake-build-debug/choochoo_json_iteration"
+  },
+  {
+    "label": "debug basic usage",
+    "command": "./debug.sh && ./cmake-build-debug/choochoo_json_example"
   }
 ]

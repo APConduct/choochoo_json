@@ -39,10 +39,10 @@ int main() {
 
     auto root = result.value();
 
-    std::cout << "Successfully parsed JSON!" << std::endl;
-    std::cout << "Root type: " << static_cast<int>(root.type()) << std::endl;
+    std::cout << "Successfully parsed JSON!" << '\n';
+    std::cout << "Root type: " << static_cast<int>(root.type()) << '\n';
 
-    std::cout << "Pretty JSON:\n" << root.pretty() << std::endl;
+    std::cout << "Pretty JSON:\n" << root.pretty() << '\n';
 
     // Example access
     if (root.type() == choochoo::json::Type::OBJECT) {
@@ -73,7 +73,7 @@ int main() {
                                 if (num)
                                     std::cout << *num << " ";
                             }
-                            std::cout << std::endl;
+                            std::cout << '\n';
                         }
                     }
                 }

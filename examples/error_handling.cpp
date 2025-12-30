@@ -10,10 +10,10 @@ int main() {
     auto result = parser.parse();
     if (!result) {
         std::cerr << "Failed to parse JSON:\n";
-        std::cerr << "  Error: " << result.error() << std::endl;
+        std::cerr << "  Error: " << result.error() << '\n';
         return 1;
     }
 
-    std::cout << "Parsed JSON:\n" << result.value().pretty() << std::endl;
+    std::cout << "Parsed JSON:\n" << result.value().pretty() << '\n';
     return 0;
 }

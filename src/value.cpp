@@ -175,6 +175,9 @@ namespace choochoo::json {
         return std::cref(storage_.object);
     }
 
+    /// Pretty-print the value with indentation.
+    /// @param indent The number of spaces to indent the output.
+    /// @return A string representation of the value with indentation.
     std::string Value::pretty(int indent) const {
         const std::string indent_str(indent, ' ');
         const std::string indent_next(indent + 2, ' ');

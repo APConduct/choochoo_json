@@ -33,13 +33,13 @@ int main() {
 
     auto result = parser.parse();
     if (!result) {
-        std::cerr << "Streaming parse error: " << result.error() << std::endl;
+        std::cerr << "Streaming parse error: " << result.error() << '\n';
         return 1;
     }
 
     auto root = result.value();
     std::cout << "Successfully parsed JSON from stream!\n";
-    std::cout << "Pretty JSON:\n" << root.pretty() << std::endl;
+    std::cout << "Pretty JSON:\n" << root.pretty() << '\n';
 
     // Access streamed values
     auto obj_opt = root.as_object();
@@ -48,7 +48,7 @@ int main() {
         const std::string* streamed_kptr = find_key(obj, "streamed");
         if (streamed_kptr) {
             auto streamed_val = obj.at(streamed_kptr).as_boolean();
-            std::cout << "streamed: " << (streamed_val.value() ? "true" : "false") << std::endl;
+            std::cout << "streamed: " << (streamed_val.value() ? "true" : "false") << '\n';
         }
         const std::string* numbers_kptr = find_key(obj, "numbers");
         if (numbers_kptr) {
@@ -60,7 +60,7 @@ int main() {
                     if (n)
                         std::cout << *n << " ";
                 }
-                std::cout << std::endl;
+                std::cout << '\n';
             }
         }
         const std::string* info_kptr = find_key(obj, "info");
@@ -72,10 +72,10 @@ int main() {
                 const std::string* source_kptr = find_key(info_map, "source");
                 const std::string* valid_kptr = find_key(info_map, "valid");
                 if (source_kptr)
-                    std::cout << "info.source: " << info_map.at(source_kptr).as_string()->get() << std::endl;
+                    std::cout << "info.source: " << info_map.at(source_kptr).as_string()->get() << '\n';
                 if (valid_kptr)
                     std::cout << "info.valid: " << (info_map.at(valid_kptr).as_boolean().value() ? "true" : "false")
-                              << std::endl;
+                              << '\n';
             }
         }
     }
